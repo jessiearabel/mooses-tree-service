@@ -58,7 +58,6 @@ const Dashboard = ({ onNavigate }) => {
       studyByTopic: "Estudiar por Tema",
       fullExam: "Examen Completo",
       viewProgress: "Ver Progreso Detallado",
-      addStudent: "Agregar Estudiante",
       recentActivity: "Actividad Reciente",
       topicPerformance: "Rendimiento por Tema",
       examResults: "Resultados de Exámenes",
