@@ -13,6 +13,10 @@ class QuestionType(str, Enum):
     multiple_choice = "multiple_choice"
     true_false = "true_false"
 
+class UserRole(str, Enum):
+    student = "student"
+    admin = "admin"
+
 class Language(str, Enum):
     es = "es"
     en = "en"
