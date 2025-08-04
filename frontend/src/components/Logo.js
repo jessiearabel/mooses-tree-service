@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Logo = ({ className = "w-6 h-6", alt = "Tree Pro Logo" }) => {
+const Logo = ({ className = "w-6 h-6", alt = "Moose Logo", white = false }) => {
   return (
     <img 
       src="https://customer-assets.emergentagent.com/job_treepro-study/artifacts/pm2mnnoa_moose-Photoroom.jpg"
@@ -8,7 +8,9 @@ const Logo = ({ className = "w-6 h-6", alt = "Tree Pro Logo" }) => {
       className={className}
       style={{
         objectFit: 'contain',
-        filter: 'brightness(0) invert(1)'  // Make it white like the original TreePine icon
+        borderRadius: '4px',
+        // Apply white filter only when specifically requested (like in header)
+        filter: white ? 'brightness(0) invert(1)' : 'none'
       }}
     />
   );
