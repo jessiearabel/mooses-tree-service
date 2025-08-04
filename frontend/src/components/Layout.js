@@ -35,7 +35,7 @@ const Layout = ({ children }) => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-2 rounded-lg">
-                <Logo className="w-6 h-6" />
+                <Logo className="w-6 h-6" white={true} />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">{t.title}</h1>
