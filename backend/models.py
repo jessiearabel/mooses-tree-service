@@ -68,6 +68,9 @@ class AdminLogin(BaseModel):
 class AdminResponse(BaseModel):
     message: str = "Admin access granted"
 
+class LanguageUpdate(BaseModel):
+    language: Language
+
 # Question Models
 class QuestionBase(BaseModel):
     topicId: int = Field(..., ge=1, le=10)
