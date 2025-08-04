@@ -43,6 +43,8 @@ const AppContent = () => {
         return <Topics onNavigate={handleNavigate} />;
       case 'progress':
         return <ProgressPage onNavigate={handleNavigate} />;
+      case 'add-student':
+        return <AddStudent onNavigate={handleNavigate} />;
       case 'practice-exam':
         return (
           <ExamInterface 
