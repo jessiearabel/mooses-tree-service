@@ -14,7 +14,8 @@ import {
   BarChart3,
   PlayCircle,
   FileText,
-  Loader2
+  Loader2,
+  UserPlus
 } from 'lucide-react';
 
 const Dashboard = ({ onNavigate }) => {
