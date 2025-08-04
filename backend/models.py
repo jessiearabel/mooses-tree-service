@@ -43,6 +43,7 @@ class UserBase(BaseModel):
     email: EmailStr
     name: str
     language: Language = Language.es
+    role: UserRole = UserRole.student
 
 class UserCreate(UserBase):
     password: str
