@@ -1,9 +1,16 @@
 import asyncio
 from datetime import datetime, timedelta
 import random
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 from database import get_database, USERS_COLLECTION, QUESTIONS_COLLECTION, EXAM_RESULTS_COLLECTION, connect_to_mongo, close_mongo_connection
 from auth import get_password_hash
 import logging
+
+# Load environment variables
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
 
 logger = logging.getLogger(__name__)
 
