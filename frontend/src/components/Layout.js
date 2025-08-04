@@ -92,8 +92,8 @@ const Layout = ({ children }) => {
           <div className="text-center text-gray-600">
             <p className="text-sm">
               {language === 'es' 
-                ? "© 2024 Plataforma de Estudio para Arboristas - Louisiana, Estados Unidos"
-                : "© 2024 Arborist Study Platform - Louisiana, United States"
+                ? "© 2024 Plataforma de Estudio Moose - Certificación de Arborista"
+                : "© 2024 Moose Study Platform - Arborist Certification"
               }
             </p>
           </div>
