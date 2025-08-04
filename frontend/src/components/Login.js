@@ -71,10 +71,10 @@ const Login = () => {
             <Logo className="w-10 h-10" alt="Moose Study Platform Logo" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {language === 'es' ? 'Plataforma Arborista' : 'Arborist Platform'}
+            {language === 'es' ? 'Plataforma Moose' : 'Moose Platform'}
           </h1>
           <p className="text-gray-600">
-            {language === 'es' ? 'Certificación de Louisiana' : 'Louisiana Certification'}
+            {language === 'es' ? 'Certificación de Arborista' : 'Arborist Certification'}
           </p>
         </div>
 
