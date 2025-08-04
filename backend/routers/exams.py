@@ -151,19 +151,29 @@ async def submit_exam(
         correct_answer = question["correctAnswer"]
         
         is_correct = False
-        if question["type"] == "multiple_choice":
-            is_correct = (user_answer == correct_answer)
-        elif question["type"] == "true_false":
-            # For true/false, frontend sends 0 for true, 1 for false
-            user_bool = user_answer == 0 if isinstance(user_answer, int) else user_answer
-            is_correct = (user_bool == correct_answer)
+        if user_answer is not None:  # Only check if user provided an answer
+            if question["type"] == "multiple_choice":
+                is_correct = (user_answer == correct_answer)
+            elif question["type"] == "true_false":
+                # For true/false, frontend sends 0 for true, 1 for false
+                user_bool = user_answer == 0 if isinstance(user_answer, int) else user_answer
+                is_correct = (user_bool == correct_answer)
         
         if is_correct:
             correct_count += 1
         
+        # Handle None values for userAnswer - convert to appropriate default
+        display_user_answer = user_answer
+        if user_answer is None:
+            # Use -1 as "no answer" indicator for multiple choice, False for true/false
+            if question["type"] == "multiple_choice":
+                display_user_answer = -1
+            else:  # true_false
+                display_user_answer = False
+        
         results.append(QuestionResult(
             questionId=question["id"],
-            userAnswer=user_answer,
+            userAnswer=display_user_answer,
             correctAnswer=correct_answer,
             isCorrect=is_correct,
             explanation=question["explanation"]
