@@ -67,8 +67,8 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-4 rounded-full w-16 h-16 mx-auto mb-4">
-            <TreePine className="w-8 h-8 text-white mx-auto" />
+          <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+            <Logo className="w-8 h-8" alt="Tree Pro Study Platform Logo" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {language === 'es' ? 'Plataforma Arborista' : 'Arborist Platform'}
