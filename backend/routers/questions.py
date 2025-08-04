@@ -5,7 +5,7 @@ import logging
 
 from models import QuestionResponse, QuestionsResponse, ExamType, UserResponse
 from auth import get_current_user
-from database import get_database, QUESTIONS_COLLECTION, serialize_docs
+from database import get_database, QUESTIONS_COLLECTION, serialize_doc, serialize_docs
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
