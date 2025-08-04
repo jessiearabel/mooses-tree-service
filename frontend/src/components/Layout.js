@@ -11,15 +11,15 @@ const Layout = ({ children }) => {
 
   const texts = {
     es: {
-      title: "Plataforma de Estudio - Arborista",
-      subtitle: "Examen de Certificación de Louisiana",
+      title: "Plataforma de Estudio - Moose",
+      subtitle: "Examen de Certificación de Arborista",
       welcome: "Bienvenido",
       logout: "Cerrar Sesión",
       language: "English"
     },
     en: {
-      title: "Arborist Study Platform",
-      subtitle: "Louisiana Certification Exam",
+      title: "Moose Study Platform",
+      subtitle: "Arborist Certification Exam",
       welcome: "Welcome",
       logout: "Logout", 
       language: "Español"
