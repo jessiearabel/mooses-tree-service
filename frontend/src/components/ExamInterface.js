@@ -201,9 +201,14 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
   const handleExamSubmit = async (autoSubmit = false) => {
     console.log('🚀 handleExamSubmit called', { autoSubmit, examId, answers, timeSpent: startTime ? Math.floor((new Date() - startTime) / 1000) : 0 });
     
-    if (!autoSubmit && !window.confirm(t.confirmSubmit)) {
-      console.log('❌ User cancelled confirmation dialog');
-      return;
+    if (!autoSubmit) {
+      // Use a simple confirmation without blocking
+      const confirmSubmit = confirm(t.confirmSubmit);
+      console.log('✅ Confirmation result:', confirmSubmit);
+      if (!confirmSubmit) {
+        console.log('❌ User cancelled confirmation dialog');
+        return;
+      }
     }
 
     console.log('✅ Proceeding with submission');
