@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
-import { examTopics, mockExamResults } from '../data/mock';
+import { examTopics } from '../data/mock';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -14,11 +14,36 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
-  ArrowLeft
+  ArrowLeft,
+  Loader2
 } from 'lucide-react';
 
 const ProgressPage = ({ onNavigate }) => {
-  const { user, language } = useAuth();
+  const { user, language, API } = useAuth();
+  const [progress, setProgress] = useState(null);
+  const [examHistory, setExamHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProgressData();
+  }, []);
+
+  const fetchProgressData = async () => {
+    try {
+      // Fetch user progress
+      const progressResponse = await API.get('/api/users/progress');
+      setProgress(progressResponse.data);
+      
+      // Fetch exam history
+      const historyResponse = await API.get('/api/exams/history');
+      setExamHistory(historyResponse.data.exams);
+      
+    } catch (error) {
+      console.error('Failed to fetch progress data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const texts = {
     es: {
@@ -47,6 +72,9 @@ const ProgressPage = ({ onNavigate }) => {
       needsImprovement: "Necesita mejora",
       good: "Bien",
       excellent: "Excelente",
+      loading: "Cargando...",
+      noActivity: "No hay actividad reciente",
+      noWeakTopics: "¡Excelente! No tienes temas débiles",
       recommendations_list: [
         "Enfócate en los temas con puntuación inferior al 70%",
         "Practica más preguntas de 'Prácticas de Trabajo Seguras'",
@@ -80,6 +108,9 @@ const ProgressPage = ({ onNavigate }) => {
       needsImprovement: "Needs improvement",
       good: "Good",
       excellent: "Excellent",
+      loading: "Loading...",
+      noActivity: "No recent activity",
+      noWeakTopics: "Excellent! No weak topics",
       recommendations_list: [
         "Focus on topics with scores below 70%",
         "Practice more 'Safe Work Practices' questions",
@@ -108,7 +139,8 @@ const ProgressPage = ({ onNavigate }) => {
     return "text-red-600";
   };
 
-  const formatExamDate = (date) => {
+  const formatExamDate = (dateString) => {
+    const date = new Date(dateString);
     return date.toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
       day: 'numeric',
       month: 'short',
@@ -117,15 +149,24 @@ const ProgressPage = ({ onNavigate }) => {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
+          <p className="text-gray-600">{t.loading}</p>
+        </div>
+      </div>
+    );
+  }
+
   const weakTopics = examTopics
-    .filter(topic => (user.progress.topicScores[topic.id] || 0) < 70)
-    .sort((a, b) => (user.progress.topicScores[a.id] || 0) - (user.progress.topicScores[b.id] || 0));
+    .filter(topic => (progress?.topicScores?.[topic.id.toString()] || 0) < 70)
+    .sort((a, b) => (progress?.topicScores?.[a.id.toString()] || 0) - (progress?.topicScores?.[b.id.toString()] || 0));
 
   const strongTopics = examTopics
-    .filter(topic => (user.progress.topicScores[topic.id] || 0) >= 85)
-    .sort((a, b) => (user.progress.topicScores[b.id] || 0) - (user.progress.topicScores[a.id] || 0));
-
-  const userExamResults = mockExamResults.filter(result => result.userId === user.id);
+    .filter(topic => (progress?.topicScores?.[topic.id.toString()] || 0) >= 85)
+    .sort((a, b) => (progress?.topicScores?.[b.id.toString()] || 0) - (progress?.topicScores?.[a.id.toString()] || 0));
 
   return (
     <div className="space-y-6">
@@ -156,13 +197,13 @@ const ProgressPage = ({ onNavigate }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-900">
-              {user.progress.completedQuestions}
+              {progress?.completedQuestions || 0}
             </div>
             <div className="text-xs text-blue-600">
-              {language === 'es' ? 'de' : 'of'} {user.progress.totalQuestions} {t.questions}
+              {language === 'es' ? 'de' : 'of'} {progress?.totalQuestions || 100} {t.questions}
             </div>
             <Progress 
-              value={(user.progress.completedQuestions / user.progress.totalQuestions) * 100} 
+              value={((progress?.completedQuestions || 0) / (progress?.totalQuestions || 100)) * 100} 
               className="mt-2 h-2"
             />
           </CardContent>
@@ -176,13 +217,13 @@ const ProgressPage = ({ onNavigate }) => {
             <Target className="w-5 h-5 text-emerald-600" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${getScoreColor(user.progress.averageScore)}`}>
-              {user.progress.averageScore}%
+            <div className={`text-2xl font-bold ${getScoreColor(progress?.averageScore || 0)}`}>
+              {progress?.averageScore || 0}%
             </div>
             <div className="text-xs text-emerald-600">
               {language === 'es' ? 'Meta: 85%' : 'Target: 85%'}
             </div>
-            <Progress value={user.progress.averageScore} className="mt-2 h-2" />
+            <Progress value={progress?.averageScore || 0} className="mt-2 h-2" />
           </CardContent>
         </Card>
 
@@ -212,10 +253,13 @@ const ProgressPage = ({ onNavigate }) => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-900">
-              {userExamResults.length}
+              {examHistory.length}
             </div>
             <div className="text-xs text-orange-600">
-              {language === 'es' ? 'Último: hace 2 días' : 'Last: 2 days ago'}
+              {examHistory.length > 0 ? 
+                (language === 'es' ? 'Último: hace 2 días' : 'Last: 2 days ago') :
+                (language === 'es' ? 'Ninguno aún' : 'None yet')
+              }
             </div>
           </CardContent>
         </Card>
@@ -232,7 +276,7 @@ const ProgressPage = ({ onNavigate }) => {
           </CardHeader>
           <CardContent className="space-y-4">
             {examTopics.map((topic) => {
-              const score = user.progress.topicScores[topic.id] || 0;
+              const score = progress?.topicScores?.[topic.id.toString()] || 0;
               const performance = getPerformanceLevel(score);
               return (
                 <div key={topic.id} className="space-y-2">
@@ -268,27 +312,34 @@ const ProgressPage = ({ onNavigate }) => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {userExamResults.slice(0, 6).map((result) => (
-                <div key={result.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">
-                      {result.examType === 'practice' ? t.practiceExam : 
-                       result.topicId ? `${t.topicExam}: ${getTopicName(result.topicId)}` : t.fullExam}
+              {examHistory.length > 0 ? (
+                examHistory.slice(0, 6).map((result) => (
+                  <div key={result.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">
+                        {result.examType === 'practice' ? t.practiceExam : 
+                         result.topicId ? `${t.topicExam}: ${getTopicName(result.topicId)}` : t.fullExam}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {result.correctAnswers}/{result.totalQuestions} {t.correct} • {Math.floor(result.timeSpent / 60)} {t.minutes}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {formatExamDate(result.completedAt)}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      {result.correctAnswers}/{result.totalQuestions} {t.correct} • {Math.floor(result.timeSpent / 60)} {t.minutes}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {formatExamDate(result.completedAt)}
-                    </div>
+                    <Badge className={`${getScoreColor(result.score) === 'text-emerald-600' ? 'bg-emerald-100 text-emerald-800' : 
+                                       getScoreColor(result.score) === 'text-yellow-600' ? 'bg-yellow-100 text-yellow-800' : 
+                                       'bg-red-100 text-red-800'}`}>
+                      {result.score}%
+                    </Badge>
                   </div>
-                  <Badge className={`${getScoreColor(result.score) === 'text-emerald-600' ? 'bg-emerald-100 text-emerald-800' : 
-                                     getScoreColor(result.score) === 'text-yellow-600' ? 'bg-yellow-100 text-yellow-800' : 
-                                     'bg-red-100 text-red-800'}`}>
-                    {result.score}%
-                  </Badge>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                  <p>{t.noActivity}</p>
                 </div>
-              ))}
+              )}
             </div>
           </CardContent>
         </Card>
@@ -313,7 +364,7 @@ const ProgressPage = ({ onNavigate }) => {
             {weakTopics.length > 0 ? (
               <div className="space-y-3">
                 {weakTopics.slice(0, 5).map((topic) => {
-                  const score = user.progress.topicScores[topic.id] || 0;
+                  const score = progress?.topicScores?.[topic.id.toString()] || 0;
                   return (
                     <div key={topic.id} className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                       <div className="flex-1">
@@ -334,7 +385,7 @@ const ProgressPage = ({ onNavigate }) => {
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <CheckCircle className="w-12 h-12 mx-auto mb-2 text-emerald-500" />
-                <p>{language === 'es' ? '¡Excelente! No tienes temas débiles' : 'Excellent! No weak topics'}</p>
+                <p>{t.noWeakTopics}</p>
               </div>
             )}
           </CardContent>
