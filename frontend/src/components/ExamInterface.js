@@ -199,9 +199,14 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
   };
 
   const handleExamSubmit = async (autoSubmit = false) => {
+    console.log('🚀 handleExamSubmit called', { autoSubmit, examId, answers, timeSpent: startTime ? Math.floor((new Date() - startTime) / 1000) : 0 });
+    
     if (!autoSubmit && !window.confirm(t.confirmSubmit)) {
+      console.log('❌ User cancelled confirmation dialog');
       return;
     }
+
+    console.log('✅ Proceeding with submission');
 
     try {
       setLoading(true);
@@ -209,17 +214,21 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
       // Calculate time spent
       const timeSpent = startTime ? Math.floor((new Date() - startTime) / 1000) : 0;
       
+      console.log('📡 Sending API request with:', { examId, answers, timeSpent });
+      
       const response = await API.post('/api/exams/submit', {
         examId,
         answers,
         timeSpent
       });
 
+      console.log('✅ API response received:', response.data);
+
       setExamCompleted(true);
       setShowResults(response.data);
       
     } catch (error) {
-      console.error('Failed to submit exam:', error);
+      console.error('❌ Failed to submit exam:', error);
       alert(language === 'es' ? 'Error al enviar el examen' : 'Failed to submit exam');
     } finally {
       setLoading(false);
