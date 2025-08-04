@@ -223,7 +223,7 @@ const Dashboard = ({ onNavigate }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Button
               onClick={() => onNavigate('practice-exam')}
               className="h-auto p-4 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
@@ -268,6 +268,18 @@ const Dashboard = ({ onNavigate }) => {
                 <BarChart3 className="w-8 h-8 mx-auto mb-2 text-purple-600" />
                 <div className="font-medium text-purple-700">{t.viewProgress}</div>
                 <div className="text-xs text-purple-600">{language === 'es' ? 'Estadísticas' : 'Statistics'}</div>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => onNavigate('add-student')}
+              variant="outline"
+              className="h-auto p-4 border-orange-300 hover:bg-orange-50"
+            >
+              <div className="text-center">
+                <UserPlus className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+                <div className="font-medium text-orange-700">{t.addStudent}</div>
+                <div className="text-xs text-orange-600">{language === 'es' ? 'Nuevo usuario' : 'New user'}</div>
               </div>
             </Button>
           </div>
