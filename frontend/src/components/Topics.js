@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
 import { examTopics } from '../data/mock';
-import { BookOpen, Play, Clock, Target, TrendingUp } from 'lucide-react';
+import { BookOpen, Play, Clock, Target, TrendingUp, Loader2 } from 'lucide-react';
 
 const Topics = ({ onNavigate }) => {
-  const { user, language } = useAuth();
+  const { user, language, API } = useAuth();
+  const [progress, setProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProgress();
+  }, []);
+
+  const fetchProgress = async () => {
+    try {
+      const response = await API.get('/api/users/progress');
+      setProgress(response.data);
+    } catch (error) {
+      console.error('Failed to fetch progress:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const texts = {
     es: {
@@ -23,7 +40,8 @@ const Topics = ({ onNavigate }) => {
       notStarted: "No iniciado",
       needsWork: "Necesita trabajo",
       good: "Bien",
-      excellent: "Excelente"
+      excellent: "Excelente",
+      loading: "Cargando..."
     },
     en: {
       title: "Study by Topic", 
@@ -37,7 +55,8 @@ const Topics = ({ onNavigate }) => {
       notStarted: "Not started",
       needsWork: "Needs work",
       good: "Good",
-      excellent: "Excellent"
+      excellent: "Excellent",
+      loading: "Loading..."
     }
   };
 
@@ -61,6 +80,17 @@ const Topics = ({ onNavigate }) => {
     onNavigate('topic-exam', { topicId });
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
+          <p className="text-gray-600">{t.loading}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -81,7 +111,7 @@ const Topics = ({ onNavigate }) => {
       {/* Topics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {examTopics.map((topic) => {
-          const userScore = user.progress.topicScores[topic.id] || 0;
+          const userScore = progress?.topicScores?.[topic.id.toString()] || 0;
           const performance = getPerformanceLevel(userScore);
           
           return (
