@@ -7,7 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from database import connect_to_mongo, close_mongo_connection, create_indexes
-from routers import auth, questions, exams, users
+from routers import auth, questions, exams, users, admin
 
 # Load environment variables
 ROOT_DIR = Path(__file__).parent
