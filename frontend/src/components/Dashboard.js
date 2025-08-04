@@ -80,7 +80,6 @@ const Dashboard = ({ onNavigate }) => {
       studyByTopic: "Study by Topic",
       fullExam: "Full Exam",
       viewProgress: "View Detailed Progress",
-      addStudent: "Add Student",
       recentActivity: "Recent Activity",
       topicPerformance: "Topic Performance", 
       examResults: "Exam Results",
