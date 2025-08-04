@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
-import { mockQuestions, examTopics, examConfigurations } from '../data/mock';
+import { examTopics } from '../data/mock';
 import { 
   Clock, 
   CheckCircle, 
@@ -14,11 +14,12 @@ import {
   Flag,
   RotateCcw,
   Home,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 
 const ExamInterface = ({ examType, topicId, onNavigate }) => {
-  const { language } = useAuth();
+  const { language, API } = useAuth();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -27,6 +28,9 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
   const [showResults, setShowResults] = useState(false);
   const [flaggedQuestions, setFlaggedQuestions] = useState(new Set());
   const [examQuestions, setExamQuestions] = useState([]);
+  const [examId, setExamId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [startTime, setStartTime] = useState(null);
 
   const texts = {
     es: {
@@ -56,6 +60,7 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
       minutes: "minutos",
       confirmSubmit: "¿Estás seguro de que quieres enviar el examen?",
       timeUp: "¡Se acabó el tiempo!",
+      loading: "Cargando...",
       examInstructions: [
         "Lee cada pregunta cuidadosamente antes de responder",
         "Puedes marcar preguntas para revisarlas después",
@@ -90,6 +95,7 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
       minutes: "minutes",
       confirmSubmit: "Are you sure you want to submit the exam?",
       timeUp: "Time's up!",
+      loading: "Loading...",
       examInstructions: [
         "Read each question carefully before answering",
         "You can flag questions to review them later",
@@ -103,23 +109,10 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
 
   // Initialize exam
   useEffect(() => {
-    let questions = [];
-    let duration = 0;
-
-    if (examType === 'practice') {
-      questions = mockQuestions.slice(0, 8); // 8 questions for demo
-      duration = examConfigurations.practiceExam.duration;
-    } else if (examType === 'full') {
-      questions = mockQuestions; // All questions for demo
-      duration = examConfigurations.fullExam.duration;
-    } else if (examType === 'topic' && topicId) {
-      questions = mockQuestions.filter(q => q.topicId === topicId);
-      duration = examConfigurations.topicExam.duration;
+    if (examStarted && !examId) {
+      startExam();
     }
-
-    setExamQuestions(questions);
-    setTimeRemaining(duration);
-  }, [examType, topicId]);
+  }, [examStarted]);
 
   // Timer effect
   useEffect(() => {
@@ -128,7 +121,7 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             setExamCompleted(true);
-            handleExamSubmit();
+            handleExamSubmit(true); // Auto-submit when time is up
             return 0;
           }
           return prev - 1;
@@ -138,6 +131,28 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
       return () => clearInterval(timer);
     }
   }, [examStarted, examCompleted, timeRemaining]);
+
+  const startExam = async () => {
+    try {
+      setLoading(true);
+      const response = await API.post('/api/exams/start', {
+        examType,
+        topicId: topicId || null
+      });
+
+      setExamId(response.data.examId);
+      setExamQuestions(response.data.questions);
+      setTimeRemaining(response.data.duration);
+      setStartTime(new Date(response.data.startTime));
+      
+    } catch (error) {
+      console.error('Failed to start exam:', error);
+      alert(language === 'es' ? 'Error al iniciar el examen' : 'Failed to start exam');
+      onNavigate('dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -153,6 +168,15 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
       return `${t.topicExam}: ${topic?.name[language]}`;
     }
     return '';
+  };
+
+  const getExamConfig = () => {
+    const configs = {
+      practice: { questions: 8, minutes: 30 },
+      full: { questions: 20, minutes: 60 },
+      topic: { questions: 10, minutes: 10 }
+    };
+    return configs[examType] || { questions: 10, minutes: 10 };
   };
 
   const handleAnswerSelect = (answerIndex) => {
@@ -174,30 +198,32 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
     });
   };
 
-  const handleExamSubmit = () => {
-    if (window.confirm(t.confirmSubmit)) {
-      setExamCompleted(true);
-      calculateResults();
+  const handleExamSubmit = async (autoSubmit = false) => {
+    if (!autoSubmit && !window.confirm(t.confirmSubmit)) {
+      return;
     }
-  };
 
-  const calculateResults = () => {
-    let correct = 0;
-    examQuestions.forEach((question, index) => {
-      const userAnswer = answers[index];
-      if (question.type === 'multiple_choice') {
-        if (userAnswer === question.correctAnswer) correct++;
-      } else if (question.type === 'true_false') {
-        if (userAnswer === (question.correctAnswer ? 0 : 1)) correct++;
-      }
-    });
+    try {
+      setLoading(true);
+      
+      // Calculate time spent
+      const timeSpent = startTime ? Math.floor((new Date() - startTime) / 1000) : 0;
+      
+      const response = await API.post('/api/exams/submit', {
+        examId,
+        answers,
+        timeSpent
+      });
 
-    setShowResults({
-      score: Math.round((correct / examQuestions.length) * 100),
-      correct,
-      incorrect: examQuestions.length - correct,
-      total: examQuestions.length
-    });
+      setExamCompleted(true);
+      setShowResults(response.data);
+      
+    } catch (error) {
+      console.error('Failed to submit exam:', error);
+      alert(language === 'es' ? 'Error al enviar el examen' : 'Failed to submit exam');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRetake = () => {
@@ -207,19 +233,14 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
     setExamCompleted(false);
     setShowResults(false);
     setFlaggedQuestions(new Set());
-    
-    // Reset time
-    if (examType === 'practice') {
-      setTimeRemaining(examConfigurations.practiceExam.duration);
-    } else if (examType === 'full') {
-      setTimeRemaining(examConfigurations.fullExam.duration);
-    } else {
-      setTimeRemaining(examConfigurations.topicExam.duration);
-    }
+    setExamId(null);
+    setStartTime(null);
   };
 
   // Pre-exam instructions
   if (!examStarted) {
+    const config = getExamConfig();
+    
     return (
       <div className="max-w-4xl mx-auto space-y-6">
         <Card>
@@ -232,7 +253,7 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">
-                  {examQuestions.length}
+                  {config.questions}
                 </div>
                 <div className="text-sm text-blue-700">
                   {language === 'es' ? 'Preguntas' : 'Questions'}
@@ -240,7 +261,7 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
               </div>
               <div className="p-4 bg-emerald-50 rounded-lg">
                 <div className="text-2xl font-bold text-emerald-600">
-                  {Math.floor(timeRemaining / 60)}
+                  {config.minutes}
                 </div>
                 <div className="text-sm text-emerald-700">
                   {t.minutes}
@@ -284,10 +305,20 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
               </Button>
               <Button
                 onClick={() => setExamStarted(true)}
+                disabled={loading}
                 className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
               >
-                {t.startExam}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t.loading}
+                  </>
+                ) : (
+                  <>
+                    {t.startExam}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
@@ -364,6 +395,20 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
             </div>
           </CardContent>
         </Card>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading || examQuestions.length === 0) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-emerald-600" />
+            <p className="text-gray-600">{t.loading}</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -511,10 +556,18 @@ const ExamInterface = ({ examType, topicId, onNavigate }) => {
               <div className="flex space-x-3">
                 {currentQuestion === examQuestions.length - 1 ? (
                   <Button
-                    onClick={handleExamSubmit}
+                    onClick={() => handleExamSubmit()}
+                    disabled={loading}
                     className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
                   >
-                    {t.submit}
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {language === 'es' ? 'Enviando...' : 'Submitting...'}
+                      </>
+                    ) : (
+                      t.submit
+                    )}
                   </Button>
                 ) : (
                   <Button
