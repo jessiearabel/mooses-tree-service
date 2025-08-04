@@ -3,7 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Card } from './ui/card';
-import { TreePine, LogOut, Globe } from 'lucide-react';
+import { LogOut, Globe } from 'lucide-react';
+import Logo from './Logo';
 
 const Layout = ({ children }) => {
   const { user, logout, language, toggleLanguage } = useAuth();
