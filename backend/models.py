@@ -62,8 +62,11 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     language: Optional[Language] = None
 
-class LanguageUpdate(BaseModel):
-    language: Language
+class AdminLogin(BaseModel):
+    password: str
+
+class AdminResponse(BaseModel):
+    message: str = "Admin access granted"
 
 # Question Models
 class QuestionBase(BaseModel):
