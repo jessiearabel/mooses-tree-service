@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import Topics from './components/Topics';
 import ExamInterface from './components/ExamInterface';
 import ProgressPage from './components/Progress';
+import AddStudent from './components/AddStudent';
 import "./App.css";
 
 const AppContent = () => {
