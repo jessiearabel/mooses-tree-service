@@ -133,6 +133,7 @@ function App() {
       <AuthProvider>
         <div className="App">
           <Routes>
+            <Route path="/admin" element={<AppContent />} />
             <Route path="*" element={<AppContent />} />
           </Routes>
         </div>
