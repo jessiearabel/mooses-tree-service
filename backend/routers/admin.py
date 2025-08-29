@@ -3,6 +3,8 @@ from typing import List
 from bson import ObjectId
 import logging
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
 from models import (
     AdminLogin, AdminResponse, UserCreate, UserResponse, QuestionCreate, 
@@ -14,6 +16,10 @@ from database import (
     serialize_doc, serialize_docs
 )
 from datetime import datetime
+
+# Load environment variables
+ROOT_DIR = Path(__file__).parent.parent
+load_dotenv(ROOT_DIR / '.env')
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
