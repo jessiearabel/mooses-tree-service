@@ -17,6 +17,20 @@ const AppContent = () => {
   const { user, loading } = useAuth();
   const [currentView, setCurrentView] = useState('dashboard');
   const [examConfig, setExamConfig] = useState(null);
+  const [adminAccess, setAdminAccess] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const location = useLocation();
+
+  // Check for admin route
+  const isAdminRoute = location.pathname === '/admin';
+
+  useEffect(() => {
+    if (isAdminRoute && !adminAccess) {
+      // Reset admin access when navigating to admin route
+      setAdminAccess(false);
+      setAdminPassword('');
+    }
+  }, [isAdminRoute]);
 
   const handleNavigate = (view, config = null) => {
     setCurrentView(view);
