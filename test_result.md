@@ -127,11 +127,14 @@ backend:
     file: "/app/backend/routers/admin.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Admin login endpoint implemented with password verification using ADMIN_PASSWORD env variable"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Admin login API working correctly. Fixed environment variable loading issue in admin router. POST /api/admin/login accepts correct password 'moose_admin_2024' and rejects invalid passwords with proper 401 responses."
 
   - task: "Admin User Management APIs"
     implemented: true
@@ -139,11 +142,14 @@ backend:
     file: "/app/backend/routers/admin.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "GET, POST, DELETE endpoints for user management implemented with admin password verification"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: All user management APIs working correctly. GET /api/admin/users retrieves all users (found 4 users), POST /api/admin/users creates new users successfully, DELETE /api/admin/users/{id} properly handles non-existent users with 404. All endpoints correctly authenticate with admin password."
 
   - task: "Admin Question Management APIs"
     implemented: true
@@ -151,11 +157,14 @@ backend:
     file: "/app/backend/routers/admin.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "GET, POST, DELETE endpoints for question management implemented with bilingual support"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: All question management APIs working correctly. GET /api/admin/questions retrieves all questions (found 11 total), topic filtering works (found 3 questions for topic 1), POST /api/admin/questions creates bilingual questions successfully, DELETE /api/admin/questions/{id} handles non-existent questions with 404. Bilingual content (Spanish/English) properly supported."
 
   - task: "Admin Statistics API"
     implemented: true
@@ -163,11 +172,14 @@ backend:
     file: "/app/backend/routers/admin.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
         comment: "Statistics endpoint implemented to provide user count, question count, and questions by topic"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Admin statistics API working correctly. GET /api/admin/stats returns proper statistics: 4 total users, 11 total questions, questions distributed across 5 topics. All data properly aggregated and formatted."
 
 frontend:
   - task: "Admin Login Component"
