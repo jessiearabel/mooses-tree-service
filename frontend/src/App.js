@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
 import Layout from './components/Layout';
@@ -9,6 +9,8 @@ import Topics from './components/Topics';
 import ExamInterface from './components/ExamInterface';
 import ProgressPage from './components/Progress';
 import AddStudent from './components/AddStudent';
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
 import "./App.css";
 
 const AppContent = () => {
