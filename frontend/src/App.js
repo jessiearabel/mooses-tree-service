@@ -39,6 +39,17 @@ const AppContent = () => {
     }
   };
 
+  const handleAdminAccess = (password) => {
+    setAdminAccess(true);
+    setAdminPassword(password);
+  };
+
+  const handleAdminLogout = () => {
+    setAdminAccess(false);
+    setAdminPassword('');
+    window.location.href = '/';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center">
