@@ -58,6 +58,26 @@ const AppContent = () => {
     );
   }
 
+  // Admin Portal Logic
+  if (isAdminRoute) {
+    if (!adminAccess) {
+      return (
+        <AdminLogin 
+          onAdminAccess={handleAdminAccess}
+          onBack={() => window.location.href = '/'}
+        />
+      );
+    } else {
+      return (
+        <AdminDashboard 
+          adminPassword={adminPassword}
+          onLogout={handleAdminLogout}
+        />
+      );
+    }
+  }
+
+  // Regular Student Portal Logic
   if (!user) {
     return <Login />;
   }
