@@ -538,7 +538,7 @@ const AdminQuestions = ({ adminPassword, onBack }) => {
                     </div>
                   </div>
                   
-                  {question.options && (
+                  {question.options && Array.isArray(question.options) && (
                     <div>
                       <h4 className="font-medium text-gray-900 mb-2">Opciones:</h4>
                       <div className="space-y-1">
