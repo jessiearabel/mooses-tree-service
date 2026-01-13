@@ -40,6 +40,8 @@ USERS_COLLECTION = "users"
 QUESTIONS_COLLECTION = "questions"
 EXAM_RESULTS_COLLECTION = "exam_results" 
 EXAM_SESSIONS_COLLECTION = "exam_sessions"
+SUBSCRIPTIONS_COLLECTION = "subscriptions"
+PAYMENTS_COLLECTION = "payments"
 
 # Utility functions for database operations
 def serialize_doc(doc):
