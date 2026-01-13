@@ -11,6 +11,7 @@ import ProgressPage from './components/Progress';
 import AddStudent from './components/AddStudent';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
+import SubscriptionRegister from './components/SubscriptionRegister';
 import "./App.css";
 
 const AppContent = () => {
