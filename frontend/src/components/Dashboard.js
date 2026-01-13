@@ -137,9 +137,9 @@ const Dashboard = ({ onNavigate }) => {
     <div className="space-y-8">
       {/* Welcome Section */}
       <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl text-white p-6">
-        <div className="flex items-center space-x-4">
-          <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 flex-shrink-0">
-            <Logo className="w-8 h-8" />
+        <div className="flex items-center space-x-3">
+          <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex-shrink-0">
+            <Logo className="w-6 h-6" />
           </div>
           <div>
             <h1 className="text-3xl font-bold mb-2">
