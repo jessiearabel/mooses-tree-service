@@ -26,6 +26,18 @@ class Difficulty(str, Enum):
     medium = "medium"
     hard = "hard"
 
+class SubscriptionStatus(str, Enum):
+    trial = "trial"
+    active = "active"
+    expired = "expired"
+    cancelled = "cancelled"
+
+class PaymentStatus(str, Enum):
+    pending = "pending"
+    completed = "completed"
+    failed = "failed"
+    refunded = "refunded"
+
 # Base Models
 class UserProgress(BaseModel):
     completedQuestions: int = 0
