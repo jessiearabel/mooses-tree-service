@@ -115,6 +115,7 @@ class UserLogin(BaseModel):
 class UserResponse(UserBase):
     id: str
     progress: UserProgress
+    subscription: Optional[SubscriptionResponse] = None
     createdAt: datetime
     
 class UserUpdate(BaseModel):
