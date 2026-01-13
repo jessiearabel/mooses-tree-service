@@ -49,6 +49,54 @@ class MultilingualText(BaseModel):
     es: str
     en: str
 
+# Subscription Models
+class Subscription(BaseModel):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
+    userId: str
+    status: SubscriptionStatus = SubscriptionStatus.trial
+    planId: str = "monthly_10"
+    trialStartDate: Optional[datetime] = None
+    trialEndDate: Optional[datetime] = None
+    subscriptionStartDate: Optional[datetime] = None
+    subscriptionEndDate: Optional[datetime] = None
+    paypalSubscriptionId: Optional[str] = None
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    updatedAt: datetime = Field(default_factory=datetime.utcnow)
+
+class Payment(BaseModel):
+    id: Optional[str] = Field(default_factory=lambda: str(uuid.uuid4()))
+    userId: str
+    subscriptionId: str
+    paypalOrderId: Optional[str] = None
+    paypalPaymentId: Optional[str] = None
+    amount: float = 10.0
+    currency: str = "USD"
+    status: PaymentStatus = PaymentStatus.pending
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    updatedAt: datetime = Field(default_factory=datetime.utcnow)
+
+class PaymentCreate(BaseModel):
+    subscriptionId: str
+    amount: float = 10.0
+    currency: str = "USD"
+
+class SubscriptionCreate(BaseModel):
+    planId: str = "monthly_10"
+    startTrial: bool = True
+
+class SubscriptionResponse(BaseModel):
+    id: str
+    userId: str
+    status: SubscriptionStatus
+    planId: str
+    trialStartDate: Optional[datetime] = None
+    trialEndDate: Optional[datetime] = None
+    subscriptionStartDate: Optional[datetime] = None
+    subscriptionEndDate: Optional[datetime] = None
+    daysRemaining: Optional[int] = None
+    isActive: bool = False
+    createdAt: datetime
+
 # User Models
 class UserBase(BaseModel):
     username: str
