@@ -34,8 +34,8 @@ const Layout = ({ children }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-1 rounded-lg">
-                <Logo className="w-4 h-4" />
+              <div className="bg-gradient-to-r from-emerald-600 to-green-600 p-1 rounded-md">
+                <Logo className="w-3 h-3" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">{t.title}</h1>
