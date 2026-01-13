@@ -24,6 +24,7 @@ const AppContent = () => {
 
   // Check for admin route
   const isAdminRoute = location.pathname === '/admin';
+  const isRegisterRoute = location.pathname === '/register';
 
   useEffect(() => {
     if (isAdminRoute && !adminAccess) {
