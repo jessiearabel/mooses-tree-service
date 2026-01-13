@@ -145,6 +145,7 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/admin" element={<AppContent />} />
+            <Route path="/register" element={<AppContent />} />
             <Route path="*" element={<AppContent />} />
           </Routes>
         </div>
