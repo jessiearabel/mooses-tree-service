@@ -172,7 +172,7 @@ const Login = () => {
             </div>
           </CardContent>
           
-          <CardFooter className="pt-4">
+          <CardFooter className="pt-4 space-y-4">
             <Button
               variant="ghost"
               onClick={toggleLanguage}
@@ -180,6 +180,19 @@ const Login = () => {
             >
               {t.languageSwitch}
             </Button>
+            
+            <div className="text-center">
+              <p className="text-sm text-gray-600 mb-3">
+                {language === 'es' ? '¿No tienes una cuenta?' : "Don't have an account?"}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = '/register'}
+                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white border-0"
+              >
+                {language === 'es' ? 'Registrarse - Prueba 5 días gratis' : 'Sign Up - 5 Days Free Trial'}
+              </Button>
+            </div>
           </CardFooter>
         </Card>
       </div>
