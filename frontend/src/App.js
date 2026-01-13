@@ -60,6 +60,15 @@ const AppContent = () => {
     );
   }
 
+  // Register Route Logic
+  if (isRegisterRoute) {
+    return (
+      <SubscriptionRegister 
+        onBack={() => window.location.href = '/'}
+      />
+    );
+  }
+
   // Admin Portal Logic
   if (isAdminRoute) {
     if (!adminAccess) {
