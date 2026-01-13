@@ -7,8 +7,11 @@ const Logo = ({ className = "w-6 h-6", alt = "Moose Logo", white = false }) => {
       alt={alt}
       className={className}
       style={{
-        objectFit: 'contain',
-        borderRadius: '4px',
+        objectFit: 'cover',
+        borderRadius: '50%',
+        width: '100%',
+        height: '100%',
+        transform: 'scale(1.2)',
         // Apply white filter only when specifically requested (like in header)
         filter: white ? 'brightness(0) invert(1)' : 'none'
       }}
