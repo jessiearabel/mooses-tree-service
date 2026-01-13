@@ -145,7 +145,9 @@ const Dashboard = ({ onNavigate }) => {
               {t.progress}
             </p>
           </div>
-          <Award className="w-8 h-8 text-emerald-200" />
+          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 flex items-center justify-center">
+            <Logo className="w-12 h-12" />
+          </div>
         </div>
       </div>
 
