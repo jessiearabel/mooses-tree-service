@@ -59,6 +59,7 @@ app.include_router(questions.router, prefix="/api/questions", tags=["questions"]
 app.include_router(exams.router, prefix="/api/exams", tags=["exams"])
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+app.include_router(subscriptions.router, prefix="/api/subscriptions", tags=["subscriptions"])
 
 # Health check endpoint
 @app.get("/api/health")
