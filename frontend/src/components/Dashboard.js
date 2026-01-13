@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
 import { examTopics } from '../data/mock';
+import SubscriptionStatus from './SubscriptionStatus';
 import { 
   BookOpen, 
   Clock, 
