@@ -145,7 +145,7 @@ const Dashboard = ({ onNavigate }) => {
               {t.progress}
             </p>
           </div>
-          <Award className="w-16 h-16 text-emerald-200" />
+          <Award className="w-8 h-8 text-emerald-200" />
         </div>
       </div>
 
