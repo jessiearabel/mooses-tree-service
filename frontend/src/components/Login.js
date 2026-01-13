@@ -67,8 +67,8 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="bg-white p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center shadow-lg">
-            <Logo className="w-10 h-10" alt="Moose Study Platform Logo" />
+          <div className="bg-white p-3 rounded-full w-12 h-12 mx-auto mb-4 flex items-center justify-center shadow-lg">
+            <Logo className="w-6 h-6" alt="Moose Study Platform Logo" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {language === 'es' ? 'Plataforma Moose' : 'Moose Platform'}
