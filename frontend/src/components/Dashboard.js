@@ -136,8 +136,11 @@ const Dashboard = ({ onNavigate }) => {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl text-white p-8">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl text-white p-6">
+        <div className="flex items-center space-x-4">
+          <div className="bg-white/20 backdrop-blur-sm rounded-full p-2 flex-shrink-0">
+            <Logo className="w-8 h-8" />
+          </div>
           <div>
             <h1 className="text-3xl font-bold mb-2">
               {t.welcome}, {user?.name}!
@@ -145,9 +148,6 @@ const Dashboard = ({ onNavigate }) => {
             <p className="text-emerald-100 text-lg">
               {t.progress}
             </p>
-          </div>
-          <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-3 flex items-center justify-center">
-            <Logo className="w-12 h-12" />
           </div>
         </div>
       </div>
