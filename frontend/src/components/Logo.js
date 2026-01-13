@@ -17,5 +17,3 @@ const Logo = ({ className = "w-6 h-6", alt = "Moose Logo", white = false }) => {
 };
 
 export default Logo;
-
-export default Logo;
