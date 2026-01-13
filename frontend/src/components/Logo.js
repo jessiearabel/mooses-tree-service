@@ -1,12 +1,15 @@
 import React from 'react';
 
 const Logo = ({ className = "w-6 h-6", alt = "Moose Logo" }) => {
-  const isDashboardAvatar = className.includes('w-6 h-6') && className !== "w-6 h-6"; // Dashboard specific
+  const isLargeAvatar = className.includes('w-10 h-10');
+  const isDashboardAvatar = className.includes('w-6 h-6') && className !== "w-6 h-6";
   const isHeaderSmall = className.includes('w-4 h-4');
   
   let scale = 'scale(0.4)'; // Default small scale
   
-  if (isDashboardAvatar) {
+  if (isLargeAvatar) {
+    scale = 'scale(0.3)'; // Very small for the large container
+  } else if (isDashboardAvatar) {
     scale = 'scale(0.6)'; // Small avatar size in dashboard
   } else if (isHeaderSmall) {
     scale = 'scale(0.4)'; // Small header size
