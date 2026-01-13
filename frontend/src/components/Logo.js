@@ -3,7 +3,7 @@ import React from 'react';
 const Logo = ({ className = "w-6 h-6", alt = "Moose Logo", white = false }) => {
   return (
     <img 
-      src="https://customer-assets.emergentagent.com/job_treepro-study/artifacts/pm2mnnoa_moose-Photoroom.jpg"
+      src="https://customer-assets.emergentagent.com/job_exam-tree-prep/artifacts/ptj20kfe_moose.png"
       alt={alt}
       className={className}
       style={{
