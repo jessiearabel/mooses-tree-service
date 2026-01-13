@@ -11,7 +11,7 @@ const Logo = ({ className = "w-6 h-6", alt = "Moose Logo" }) => {
         borderRadius: '50%',
         width: '100%',
         height: '100%',
-        transform: 'scale(0.7)'
+        transform: 'scale(0.6)'
       }}
     />
   );
