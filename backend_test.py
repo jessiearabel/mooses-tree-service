@@ -24,12 +24,14 @@ TEST_USER_DATA = {
     "language": "en"
 }
 
-class AdminAPITester:
+class BackendAPITester:
     def __init__(self):
         self.session = requests.Session()
         self.test_results = []
         self.created_user_id = None
         self.created_question_id = None
+        self.test_user_token = None
+        self.test_user_id = None
         
     def log_test(self, test_name, success, details=""):
         """Log test result"""
