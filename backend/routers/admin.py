@@ -398,7 +398,7 @@ async def bulk_import_questions(
                 errors.append(f"Row {index + 2}: {str(e)}")
         
         return {
-            "message": f"Bulk import completed",
+            "message": "Bulk import completed",
             "imported_count": len(imported_questions),
             "error_count": len(errors),
             "imported_questions": imported_questions,
