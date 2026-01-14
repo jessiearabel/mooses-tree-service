@@ -386,7 +386,8 @@ metadata:
 test_plan:
   current_focus:
     - "PayPal Integration" 
-  stuck_tasks: []
+  stuck_tasks: 
+    - "PayPal Integration"
   test_all: false
   test_priority: "high_first"
 
