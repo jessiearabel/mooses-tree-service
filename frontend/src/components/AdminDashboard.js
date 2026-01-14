@@ -165,7 +165,7 @@ const AdminDashboard = ({ adminPassword, onLogout }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Button
               onClick={() => setCurrentView('users')}
               className="h-auto p-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
@@ -188,6 +188,19 @@ const AdminDashboard = ({ adminPassword, onLogout }) => {
                 <div className="font-medium">Gestionar Preguntas</div>
                 <div className="text-xs opacity-90">
                   Agregar, eliminar y editar preguntas
+                </div>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => setCurrentView('bulk-import')}
+              className="h-auto p-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+            >
+              <div className="text-center">
+                <Upload className="w-8 h-8 mx-auto mb-2" />
+                <div className="font-medium">Importación Masiva</div>
+                <div className="text-xs opacity-90">
+                  Importar múltiples preguntas
                 </div>
               </div>
             </Button>
