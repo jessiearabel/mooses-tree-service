@@ -97,10 +97,10 @@ async def create_subscription(
     return SubscriptionResponse(**serialize_doc(new_subscription))
 
 @router.get("/status", response_model=Optional[SubscriptionResponse])
-async def get_subscription_status(current_user: dict = Depends(get_current_user)):
+async def get_subscription_status(current_user = Depends(get_current_user)):
     """Get current user's subscription status"""
     db = await get_database()
-    subscription = await get_user_subscription(current_user["id"], db)
+    subscription = await get_user_subscription(current_user.id, db)
     
     if not subscription:
         return None
@@ -108,7 +108,7 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
     # Auto-update expired subscriptions
     if subscription.daysRemaining <= 0 and subscription.status in [SubscriptionStatus.trial, SubscriptionStatus.active]:
         await db[SUBSCRIPTIONS_COLLECTION].update_one(
-            {"userId": current_user["id"]},
+            {"userId": current_user.id},
             {
                 "$set": {
                     "status": SubscriptionStatus.expired,
