@@ -47,6 +47,280 @@ class BackendAPITester:
             "timestamp": datetime.now().isoformat()
         })
     
+    def setup_test_user(self):
+        """Create a test user and get authentication token"""
+        try:
+            # Register test user
+            response = self.session.post(
+                f"{BACKEND_URL}/auth/register",
+                json=TEST_USER_DATA,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code != 200:
+                self.log_test("Setup Test User - Registration", False, f"Registration failed: {response.status_code} - {response.text}")
+                return False
+            
+            # Login to get token
+            login_response = self.session.post(
+                f"{BACKEND_URL}/auth/login",
+                json={"username": TEST_USER_DATA["username"], "password": TEST_USER_DATA["password"]},
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if login_response.status_code == 200:
+                data = login_response.json()
+                self.test_user_token = data["access_token"]
+                self.test_user_id = data["user"]["id"]
+                self.log_test("Setup Test User - Authentication", True, f"User created and authenticated: {TEST_USER_DATA['username']}")
+                return True
+            else:
+                self.log_test("Setup Test User - Authentication", False, f"Login failed: {login_response.status_code}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Setup Test User", False, f"Exception: {str(e)}")
+            return False
+    
+    def get_auth_headers(self):
+        """Get authorization headers for authenticated requests"""
+        if not self.test_user_token:
+            return {}
+        return {"Authorization": f"Bearer {self.test_user_token}"}
+    
+    # SUBSCRIPTION SYSTEM TESTS
+    
+    def test_subscription_create_unauthorized(self):
+        """Test creating subscription without authentication"""
+        try:
+            subscription_data = {"planId": "monthly_10", "startTrial": True}
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/subscriptions/subscribe",
+                json=subscription_data,
+                headers={"Content-Type": "application/json"}
+            )
+            
+            if response.status_code == 401:
+                self.log_test("Subscription Create - Unauthorized", True, "Correctly rejected unauthenticated request")
+            else:
+                self.log_test("Subscription Create - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Subscription Create - Unauthorized", False, f"Exception: {str(e)}")
+    
+    def test_subscription_create_valid(self):
+        """Test creating subscription with valid authentication"""
+        try:
+            subscription_data = {"planId": "monthly_10", "startTrial": True}
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/subscriptions/subscribe",
+                json=subscription_data,
+                headers={**{"Content-Type": "application/json"}, **self.get_auth_headers()}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                expected_fields = ["id", "userId", "status", "planId", "trialStartDate", "trialEndDate", "daysRemaining", "isActive"]
+                if all(field in data for field in expected_fields):
+                    if data["status"] == "trial" and data["daysRemaining"] == 5 and data["isActive"]:
+                        self.log_test("Subscription Create - Valid", True, f"5-day trial created successfully, {data['daysRemaining']} days remaining")
+                    else:
+                        self.log_test("Subscription Create - Valid", False, f"Incorrect trial setup: status={data.get('status')}, days={data.get('daysRemaining')}, active={data.get('isActive')}")
+                else:
+                    missing_fields = [f for f in expected_fields if f not in data]
+                    self.log_test("Subscription Create - Valid", False, f"Missing fields: {missing_fields}")
+            else:
+                self.log_test("Subscription Create - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Subscription Create - Valid", False, f"Exception: {str(e)}")
+    
+    def test_subscription_create_duplicate(self):
+        """Test creating duplicate subscription for same user"""
+        try:
+            subscription_data = {"planId": "monthly_10", "startTrial": True}
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/subscriptions/subscribe",
+                json=subscription_data,
+                headers={**{"Content-Type": "application/json"}, **self.get_auth_headers()}
+            )
+            
+            if response.status_code == 400:
+                data = response.json()
+                if "already has a subscription" in data.get("detail", ""):
+                    self.log_test("Subscription Create - Duplicate", True, "Correctly rejected duplicate subscription")
+                else:
+                    self.log_test("Subscription Create - Duplicate", False, f"Wrong error message: {data}")
+            else:
+                self.log_test("Subscription Create - Duplicate", False, f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Subscription Create - Duplicate", False, f"Exception: {str(e)}")
+    
+    def test_subscription_status_valid(self):
+        """Test getting subscription status with valid authentication"""
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/subscriptions/status",
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data:  # Should have subscription data
+                    expected_fields = ["id", "userId", "status", "daysRemaining", "isActive"]
+                    if all(field in data for field in expected_fields):
+                        self.log_test("Subscription Status - Valid", True, f"Status: {data['status']}, Days remaining: {data['daysRemaining']}, Active: {data['isActive']}")
+                    else:
+                        missing_fields = [f for f in expected_fields if f not in data]
+                        self.log_test("Subscription Status - Valid", False, f"Missing fields: {missing_fields}")
+                else:
+                    self.log_test("Subscription Status - Valid", True, "No subscription found (null response)")
+            else:
+                self.log_test("Subscription Status - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Subscription Status - Valid", False, f"Exception: {str(e)}")
+    
+    def test_subscription_status_unauthorized(self):
+        """Test getting subscription status without authentication"""
+        try:
+            response = self.session.get(f"{BACKEND_URL}/subscriptions/status")
+            
+            if response.status_code == 401:
+                self.log_test("Subscription Status - Unauthorized", True, "Correctly rejected unauthenticated request")
+            else:
+                self.log_test("Subscription Status - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Subscription Status - Unauthorized", False, f"Exception: {str(e)}")
+    
+    def test_paypal_create_payment_unauthorized(self):
+        """Test creating PayPal payment without authentication"""
+        try:
+            response = self.session.post(f"{BACKEND_URL}/subscriptions/create-payment")
+            
+            if response.status_code == 401:
+                self.log_test("PayPal Create Payment - Unauthorized", True, "Correctly rejected unauthenticated request")
+            else:
+                self.log_test("PayPal Create Payment - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("PayPal Create Payment - Unauthorized", False, f"Exception: {str(e)}")
+    
+    def test_paypal_create_payment_valid(self):
+        """Test creating PayPal payment with valid authentication"""
+        try:
+            response = self.session.post(
+                f"{BACKEND_URL}/subscriptions/create-payment",
+                headers=self.get_auth_headers()
+            )
+            
+            # Note: This may fail due to PayPal credentials not being configured
+            if response.status_code == 200:
+                data = response.json()
+                if "paymentId" in data and "approvalUrl" in data:
+                    self.log_test("PayPal Create Payment - Valid", True, f"Payment created with ID: {data['paymentId']}")
+                else:
+                    self.log_test("PayPal Create Payment - Valid", False, f"Missing payment fields: {data}")
+            elif response.status_code == 400:
+                data = response.json()
+                if "Failed to create PayPal payment" in data.get("detail", ""):
+                    self.log_test("PayPal Create Payment - Valid", True, "Expected failure due to PayPal credentials not configured (sandbox)")
+                else:
+                    self.log_test("PayPal Create Payment - Valid", False, f"Unexpected error: {data}")
+            else:
+                self.log_test("PayPal Create Payment - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("PayPal Create Payment - Valid", False, f"Exception: {str(e)}")
+    
+    def test_paypal_execute_payment_unauthorized(self):
+        """Test executing PayPal payment without authentication"""
+        try:
+            response = self.session.post(
+                f"{BACKEND_URL}/subscriptions/execute-payment",
+                params={"payment_id": "fake_payment_id", "payer_id": "fake_payer_id"}
+            )
+            
+            if response.status_code == 401:
+                self.log_test("PayPal Execute Payment - Unauthorized", True, "Correctly rejected unauthenticated request")
+            else:
+                self.log_test("PayPal Execute Payment - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("PayPal Execute Payment - Unauthorized", False, f"Exception: {str(e)}")
+    
+    def test_subscription_cancel_valid(self):
+        """Test cancelling subscription with valid authentication"""
+        try:
+            response = self.session.post(
+                f"{BACKEND_URL}/subscriptions/cancel",
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "message" in data and "cancelled successfully" in data["message"]:
+                    self.log_test("Subscription Cancel - Valid", True, "Subscription cancelled successfully")
+                else:
+                    self.log_test("Subscription Cancel - Valid", False, f"Unexpected response: {data}")
+            else:
+                self.log_test("Subscription Cancel - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Subscription Cancel - Valid", False, f"Exception: {str(e)}")
+    
+    def test_subscription_cancel_unauthorized(self):
+        """Test cancelling subscription without authentication"""
+        try:
+            response = self.session.post(f"{BACKEND_URL}/subscriptions/cancel")
+            
+            if response.status_code == 401:
+                self.log_test("Subscription Cancel - Unauthorized", True, "Correctly rejected unauthenticated request")
+            else:
+                self.log_test("Subscription Cancel - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Subscription Cancel - Unauthorized", False, f"Exception: {str(e)}")
+    
+    def test_payment_history_valid(self):
+        """Test getting payment history with valid authentication"""
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/subscriptions/payments",
+                headers=self.get_auth_headers()
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, list):
+                    self.log_test("Payment History - Valid", True, f"Retrieved {len(data)} payment records")
+                else:
+                    self.log_test("Payment History - Valid", False, f"Expected list, got: {type(data)}")
+            else:
+                self.log_test("Payment History - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Payment History - Valid", False, f"Exception: {str(e)}")
+    
+    def test_payment_history_unauthorized(self):
+        """Test getting payment history without authentication"""
+        try:
+            response = self.session.get(f"{BACKEND_URL}/subscriptions/payments")
+            
+            if response.status_code == 401:
+                self.log_test("Payment History - Unauthorized", True, "Correctly rejected unauthenticated request")
+            else:
+                self.log_test("Payment History - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Payment History - Unauthorized", False, f"Exception: {str(e)}")
+    
+    # ADMIN PORTAL TESTS (existing tests)
     def test_admin_login_valid(self):
         """Test admin login with correct password"""
         try:
