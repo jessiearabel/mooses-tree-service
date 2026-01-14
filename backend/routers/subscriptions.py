@@ -239,13 +239,13 @@ async def execute_paypal_payment(
         )
 
 @router.post("/cancel", response_model=MessageResponse)
-async def cancel_subscription(current_user: dict = Depends(get_current_user)):
+async def cancel_subscription(current_user = Depends(get_current_user)):
     """Cancel user's subscription"""
     db = await get_database()
     
     # Update subscription status
     result = await db[SUBSCRIPTIONS_COLLECTION].update_one(
-        {"userId": current_user["id"]},
+        {"userId": current_user.id},
         {
             "$set": {
                 "status": SubscriptionStatus.cancelled,
@@ -260,7 +260,7 @@ async def cancel_subscription(current_user: dict = Depends(get_current_user)):
             detail="No subscription found for user"
         )
     
-    logger.info(f"Subscription cancelled for user: {current_user['username']}")
+    logger.info(f"Subscription cancelled for user: {current_user.username}")
     return MessageResponse(message="Subscription cancelled successfully")
 
 @router.get("/payments", response_model=List[dict])
