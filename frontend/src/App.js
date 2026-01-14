@@ -159,6 +159,8 @@ function App() {
           <Routes>
             <Route path="/admin" element={<AppContent />} />
             <Route path="/register" element={<AppContent />} />
+            <Route path="/payment/success" element={<AppContent />} />
+            <Route path="/payment/cancel" element={<AppContent />} />
             <Route path="*" element={<AppContent />} />
           </Routes>
         </div>
