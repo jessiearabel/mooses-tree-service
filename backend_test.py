@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Admin Portal
-Tests all admin endpoints with proper authentication and error handling
+Backend API Testing for Arborist Platform
+Tests admin endpoints and subscription system with proper authentication and error handling
 """
 
 import requests
@@ -14,6 +14,15 @@ from datetime import datetime
 BACKEND_URL = "https://exam-tree-prep.preview.emergentagent.com/api"
 ADMIN_PASSWORD = "moose_admin_2024"
 INVALID_PASSWORD = "wrong_password"
+
+# Test user credentials for subscription testing
+TEST_USER_DATA = {
+    "username": f"testuser_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+    "email": f"test_{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com",
+    "password": "SecurePass123!",
+    "name": "Test User for Subscription Testing",
+    "language": "en"
+}
 
 class AdminAPITester:
     def __init__(self):
