@@ -56,13 +56,13 @@ async def get_user_subscription(user_id: str, db):
 @router.post("/subscribe", response_model=SubscriptionResponse)
 async def create_subscription(
     subscription_data: SubscriptionCreate,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """Create a new subscription with 5-day trial"""
     db = await get_database()
     
     # Check if user already has a subscription
-    existing_subscription = await db[SUBSCRIPTIONS_COLLECTION].find_one({"userId": current_user["id"]})
+    existing_subscription = await db[SUBSCRIPTIONS_COLLECTION].find_one({"userId": current_user.id})
     if existing_subscription:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -74,7 +74,7 @@ async def create_subscription(
     trial_end = now + timedelta(days=5)
     
     new_subscription = {
-        "userId": current_user["id"],
+        "userId": current_user.id,
         "status": SubscriptionStatus.trial,
         "planId": subscription_data.planId,
         "trialStartDate": now,
@@ -93,7 +93,7 @@ async def create_subscription(
     new_subscription["daysRemaining"] = 5
     new_subscription["isActive"] = True
     
-    logger.info(f"Created trial subscription for user: {current_user['username']}")
+    logger.info(f"Created trial subscription for user: {current_user.username}")
     return SubscriptionResponse(**serialize_doc(new_subscription))
 
 @router.get("/status", response_model=Optional[SubscriptionResponse])
