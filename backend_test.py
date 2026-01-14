@@ -666,21 +666,48 @@ class BackendAPITester:
             self.log_test("Delete Non-existent Question", False, f"Exception: {str(e)}")
     
     def run_all_tests(self):
-        """Run all admin API tests"""
+        """Run all backend API tests"""
         print("=" * 60)
-        print("ADMIN PORTAL BACKEND API TESTING")
+        print("ARBORIST PLATFORM BACKEND API TESTING")
         print("=" * 60)
         print(f"Backend URL: {BACKEND_URL}")
-        print(f"Admin Password: {ADMIN_PASSWORD}")
         print("=" * 60)
         
-        # Authentication Tests
-        print("\n🔐 AUTHENTICATION TESTS")
+        # Setup test user for subscription testing
+        print("\n🔧 SETUP")
+        if not self.setup_test_user():
+            print("❌ Failed to setup test user. Skipping subscription tests.")
+            subscription_tests_enabled = False
+        else:
+            subscription_tests_enabled = True
+        
+        # Subscription System Tests
+        if subscription_tests_enabled:
+            print("\n💳 SUBSCRIPTION SYSTEM TESTS")
+            self.test_subscription_create_unauthorized()
+            self.test_subscription_create_valid()
+            self.test_subscription_create_duplicate()
+            self.test_subscription_status_valid()
+            self.test_subscription_status_unauthorized()
+            
+            print("\n💰 PAYPAL INTEGRATION TESTS")
+            self.test_paypal_create_payment_unauthorized()
+            self.test_paypal_create_payment_valid()
+            self.test_paypal_execute_payment_unauthorized()
+            
+            print("\n📋 SUBSCRIPTION MANAGEMENT TESTS")
+            self.test_subscription_cancel_valid()
+            self.test_subscription_cancel_unauthorized()
+            self.test_payment_history_valid()
+            self.test_payment_history_unauthorized()
+        
+        # Admin Portal Tests
+        print("\n🔐 ADMIN AUTHENTICATION TESTS")
         self.test_admin_login_valid()
         self.test_admin_login_invalid()
         
         # User Management Tests
-        print("\n👥 USER MANAGEMENT TESTS")
+        print("\n👥 ADMIN USER MANAGEMENT TESTS")
         self.test_get_users_valid()
         self.test_get_users_invalid()
         self.test_create_user_valid()
@@ -688,7 +715,7 @@ class BackendAPITester:
         self.test_delete_nonexistent_user()
         
         # Question Management Tests
-        print("\n❓ QUESTION MANAGEMENT TESTS")
+        print("\n❓ ADMIN QUESTION MANAGEMENT TESTS")
         self.test_get_questions_valid()
         self.test_get_questions_with_filter()
         self.test_get_questions_invalid()
@@ -697,12 +724,14 @@ class BackendAPITester:
         self.test_delete_nonexistent_question()
         
         # Statistics Tests
-        print("\n📊 STATISTICS TESTS")
+        print("\n📊 ADMIN STATISTICS TESTS")
         self.test_get_stats_valid()
         self.test_get_stats_invalid()
         
         # Summary
         self.print_summary()
+        
+        return self.get_test_success_rate()
     
     def print_summary(self):
         """Print test summary"""
