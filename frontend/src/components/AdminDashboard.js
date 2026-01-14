@@ -145,9 +145,11 @@ const AdminDashboard = ({ adminPassword, onLogout }) => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              {Object.entries(stats.questionsByTopic).map(([topicId, count]) => (
+              {Array.from({length: 5}, (_, i) => i + 1).map(topicId => (
                 <div key={topicId} className="text-center p-3 bg-gray-50 rounded-lg">
-                  <div className="text-lg font-bold text-gray-900">{count}</div>
+                  <div className="text-lg font-bold text-gray-900">
+                    {stats?.questionsByTopic?.[topicId] || 0}
+                  </div>
                   <div className="text-xs text-gray-600">Tema {topicId}</div>
                 </div>
               ))}
