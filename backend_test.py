@@ -755,8 +755,13 @@ class BackendAPITester:
                     print(f"  - {result['test']}: {result['details']}")
         
         print("\n" + "=" * 60)
-        
-        return failed_tests == 0
+    
+    def get_test_success_rate(self):
+        """Get test success rate"""
+        if not self.test_results:
+            return 0.0
+        passed_tests = sum(1 for result in self.test_results if result["success"])
+        return (passed_tests / len(self.test_results)) * 100
 
 if __name__ == "__main__":
     tester = AdminAPITester()
