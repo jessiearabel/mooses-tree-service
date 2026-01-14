@@ -665,6 +665,288 @@ class BackendAPITester:
         except Exception as e:
             self.log_test("Delete Non-existent Question", False, f"Exception: {str(e)}")
     
+    # BULK IMPORT TESTS
+    
+    def test_bulk_import_template_download_valid(self):
+        """Test downloading bulk import template with valid admin password"""
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/admin/questions/template",
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "csv_content" in data:
+                    csv_content = data["csv_content"]
+                    # Check if CSV has required headers
+                    required_headers = [
+                        'topic_id', 'type', 'question_es', 'question_en', 
+                        'options', 'correct_answer', 'explanation_es', 'explanation_en', 'difficulty'
+                    ]
+                    headers_present = all(header in csv_content for header in required_headers)
+                    if headers_present:
+                        self.log_test("Template Download - Valid", True, "CSV template generated with all required columns")
+                    else:
+                        self.log_test("Template Download - Valid", False, "CSV template missing required columns")
+                else:
+                    self.log_test("Template Download - Valid", False, "Response missing csv_content field")
+            else:
+                self.log_test("Template Download - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Template Download - Valid", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_template_download_invalid(self):
+        """Test downloading bulk import template with invalid admin password"""
+        try:
+            response = self.session.get(
+                f"{BACKEND_URL}/admin/questions/template",
+                params={"admin_password": INVALID_PASSWORD}
+            )
+            
+            if response.status_code == 401:
+                self.log_test("Template Download - Invalid Password", True, "Correctly rejected with 401")
+            else:
+                self.log_test("Template Download - Invalid Password", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Template Download - Invalid Password", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_csv_valid(self):
+        """Test bulk import with valid CSV file"""
+        try:
+            # Create valid CSV content
+            csv_content = """topic_id,type,question_es,question_en,options,correct_answer,explanation_es,explanation_en,difficulty
+1,multiple_choice,¿Cuál es la función de las raíces?,What is the function of roots?,"[""Absorber agua"", ""Fotosíntesis"", ""Producir flores"", ""Almacenar azúcar""]",0,Las raíces absorben agua y nutrientes del suelo,Roots absorb water and nutrients from soil,easy
+2,true_false,Los árboles necesitan luz solar,Trees need sunlight,"[""Verdadero"", ""Falso""]",0,Los árboles necesitan luz solar para la fotosíntesis,Trees need sunlight for photosynthesis,easy
+3,multiple_choice,¿Qué herramienta se usa para podar?,Which tool is used for pruning?,"[""Tijeras"", ""Martillo"", ""Destornillador"", ""Llave inglesa""]",0,Las tijeras de podar son la herramienta correcta,Pruning shears are the correct tool,medium"""
+            
+            # Create file-like object
+            files = {
+                'file': ('test_questions.csv', csv_content, 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                expected_fields = ["message", "imported_count", "error_count", "imported_questions", "errors"]
+                if all(field in data for field in expected_fields):
+                    if data["imported_count"] == 3 and data["error_count"] == 0:
+                        self.log_test("Bulk Import CSV - Valid", True, f"Successfully imported {data['imported_count']} questions")
+                    else:
+                        self.log_test("Bulk Import CSV - Valid", False, f"Import count: {data['imported_count']}, Error count: {data['error_count']}")
+                else:
+                    missing_fields = [f for f in expected_fields if f not in data]
+                    self.log_test("Bulk Import CSV - Valid", False, f"Missing response fields: {missing_fields}")
+            else:
+                self.log_test("Bulk Import CSV - Valid", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import CSV - Valid", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_csv_invalid_columns(self):
+        """Test bulk import with CSV missing required columns"""
+        try:
+            # Create CSV with missing columns
+            csv_content = """topic_id,type,question_es
+1,multiple_choice,¿Cuál es la función de las raíces?
+2,true_false,Los árboles necesitan luz solar"""
+            
+            files = {
+                'file': ('invalid_questions.csv', csv_content, 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 400:
+                data = response.json()
+                if "Missing required columns" in data.get("detail", ""):
+                    self.log_test("Bulk Import CSV - Invalid Columns", True, "Correctly rejected CSV with missing columns")
+                else:
+                    self.log_test("Bulk Import CSV - Invalid Columns", False, f"Wrong error message: {data}")
+            else:
+                self.log_test("Bulk Import CSV - Invalid Columns", False, f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import CSV - Invalid Columns", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_invalid_file_type(self):
+        """Test bulk import with invalid file type"""
+        try:
+            # Create text file (invalid type)
+            text_content = "This is not a CSV or Excel file"
+            
+            files = {
+                'file': ('invalid_file.txt', text_content, 'text/plain')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 400:
+                data = response.json()
+                if "Invalid file type" in data.get("detail", ""):
+                    self.log_test("Bulk Import - Invalid File Type", True, "Correctly rejected invalid file type")
+                else:
+                    self.log_test("Bulk Import - Invalid File Type", False, f"Wrong error message: {data}")
+            else:
+                self.log_test("Bulk Import - Invalid File Type", False, f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import - Invalid File Type", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_data_validation(self):
+        """Test bulk import with invalid data values"""
+        try:
+            # Create CSV with invalid data
+            csv_content = """topic_id,type,question_es,question_en,options,correct_answer,explanation_es,explanation_en,difficulty
+10,multiple_choice,¿Pregunta inválida?,Invalid question?,"[""Opción 1"", ""Opción 2""]",0,Explicación,Explanation,easy
+1,invalid_type,¿Pregunta válida?,Valid question?,"[""Opción 1"", ""Opción 2""]",0,Explicación,Explanation,easy
+1,multiple_choice,¿Pregunta válida?,Valid question?,"[""Opción 1"", ""Opción 2""]",0,Explicación,Explanation,invalid_difficulty"""
+            
+            files = {
+                'file': ('invalid_data.csv', csv_content, 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data["error_count"] > 0 and len(data["errors"]) > 0:
+                    self.log_test("Bulk Import - Data Validation", True, f"Correctly identified {data['error_count']} validation errors")
+                else:
+                    self.log_test("Bulk Import - Data Validation", False, "Should have validation errors but none found")
+            else:
+                self.log_test("Bulk Import - Data Validation", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import - Data Validation", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_options_parsing(self):
+        """Test bulk import with different options formats"""
+        try:
+            # Create CSV with different option formats
+            csv_content = """topic_id,type,question_es,question_en,options,correct_answer,explanation_es,explanation_en,difficulty
+1,multiple_choice,¿Pregunta JSON?,JSON question?,"[""Opción 1"", ""Opción 2"", ""Opción 3""]",0,Explicación JSON,JSON explanation,easy
+2,multiple_choice,¿Pregunta CSV?,CSV question?,"Opción A, Opción B, Opción C",1,Explicación CSV,CSV explanation,medium"""
+            
+            files = {
+                'file': ('options_test.csv', csv_content, 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data["imported_count"] == 2 and data["error_count"] == 0:
+                    self.log_test("Bulk Import - Options Parsing", True, "Successfully parsed both JSON and CSV option formats")
+                else:
+                    self.log_test("Bulk Import - Options Parsing", False, f"Import: {data['imported_count']}, Errors: {data['error_count']}")
+            else:
+                self.log_test("Bulk Import - Options Parsing", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import - Options Parsing", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_unauthorized(self):
+        """Test bulk import without admin authentication"""
+        try:
+            csv_content = """topic_id,type,question_es,question_en,options,correct_answer,explanation_es,explanation_en,difficulty
+1,multiple_choice,¿Pregunta?,Question?,"[""A"", ""B""]",0,Explicación,Explanation,easy"""
+            
+            files = {
+                'file': ('test.csv', csv_content, 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": INVALID_PASSWORD}
+            )
+            
+            if response.status_code == 401:
+                self.log_test("Bulk Import - Unauthorized", True, "Correctly rejected unauthorized request")
+            else:
+                self.log_test("Bulk Import - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import - Unauthorized", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_empty_file(self):
+        """Test bulk import with empty file"""
+        try:
+            files = {
+                'file': ('empty.csv', '', 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 400:
+                data = response.json()
+                if "empty" in data.get("detail", "").lower():
+                    self.log_test("Bulk Import - Empty File", True, "Correctly rejected empty file")
+                else:
+                    self.log_test("Bulk Import - Empty File", False, f"Wrong error message: {data}")
+            else:
+                self.log_test("Bulk Import - Empty File", False, f"Expected 400, got {response.status_code}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import - Empty File", False, f"Exception: {str(e)}")
+    
+    def test_bulk_import_correct_answer_validation(self):
+        """Test bulk import with invalid correct_answer indices"""
+        try:
+            # Create CSV with out-of-range correct_answer
+            csv_content = """topic_id,type,question_es,question_en,options,correct_answer,explanation_es,explanation_en,difficulty
+1,multiple_choice,¿Pregunta?,Question?,"[""A"", ""B""]",5,Explicación,Explanation,easy"""
+            
+            files = {
+                'file': ('invalid_answer.csv', csv_content, 'text/csv')
+            }
+            
+            response = self.session.post(
+                f"{BACKEND_URL}/admin/questions/bulk-import",
+                files=files,
+                params={"admin_password": ADMIN_PASSWORD}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data["error_count"] > 0 and any("out of range" in error for error in data["errors"]):
+                    self.log_test("Bulk Import - Correct Answer Validation", True, "Correctly identified out-of-range correct answer")
+                else:
+                    self.log_test("Bulk Import - Correct Answer Validation", False, "Should have detected out-of-range correct answer")
+            else:
+                self.log_test("Bulk Import - Correct Answer Validation", False, f"Status: {response.status_code}, Response: {response.text}")
+                
+        except Exception as e:
+            self.log_test("Bulk Import - Correct Answer Validation", False, f"Exception: {str(e)}")
+    
     def run_all_tests(self):
         """Run all backend API tests"""
         print("=" * 60)
