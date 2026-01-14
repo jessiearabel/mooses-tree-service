@@ -180,15 +180,18 @@ backend:
 
   - task: "PayPal Integration"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/backend/routers/subscriptions.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "PayPal REST SDK integration for payment processing, order creation and execution"
+      - working: false
+        agent: "testing"
+        comment: "TESTED: PayPal integration endpoints implemented correctly but failing due to invalid credentials. Error: 'Client Authentication failed' - PayPal sandbox credentials in .env are placeholder values ('your_paypal_client_id', 'your_paypal_client_secret'). API structure and validation working correctly. Requires valid PayPal sandbox credentials to function."
 
   - task: "Subscription Models"
     implemented: true
