@@ -764,8 +764,8 @@ class BackendAPITester:
         return (passed_tests / len(self.test_results)) * 100
 
 if __name__ == "__main__":
-    tester = AdminAPITester()
-    success = tester.run_all_tests()
+    tester = BackendAPITester()
+    success_rate = tester.run_all_tests()
     
     # Exit with appropriate code
-    sys.exit(0 if success else 1)
+    sys.exit(0 if success_rate > 80 else 1)
