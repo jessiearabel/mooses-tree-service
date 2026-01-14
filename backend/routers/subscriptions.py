@@ -264,11 +264,11 @@ async def cancel_subscription(current_user = Depends(get_current_user)):
     return MessageResponse(message="Subscription cancelled successfully")
 
 @router.get("/payments", response_model=List[dict])
-async def get_payment_history(current_user: dict = Depends(get_current_user)):
+async def get_payment_history(current_user = Depends(get_current_user)):
     """Get user's payment history"""
     db = await get_database()
     
-    payments_cursor = db[PAYMENTS_COLLECTION].find({"userId": current_user["id"]})
+    payments_cursor = db[PAYMENTS_COLLECTION].find({"userId": current_user.id})
     payments = await payments_cursor.to_list(length=100)
     
     return [serialize_doc(payment) for payment in payments]
