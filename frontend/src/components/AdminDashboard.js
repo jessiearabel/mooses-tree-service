@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import AdminUsers from './AdminUsers';
 import AdminQuestions from './AdminQuestions';
+import BulkImportQuestions from './BulkImportQuestions';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
