@@ -122,12 +122,12 @@ async def get_subscription_status(current_user = Depends(get_current_user)):
     return subscription
 
 @router.post("/create-payment", response_model=dict)
-async def create_paypal_payment(current_user: dict = Depends(get_current_user)):
+async def create_paypal_payment(current_user = Depends(get_current_user)):
     """Create PayPal payment for subscription"""
     db = await get_database()
     
     # Get user's subscription
-    subscription = await get_user_subscription(current_user["id"], db)
+    subscription = await get_user_subscription(current_user.id, db)
     if not subscription:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -163,7 +163,7 @@ async def create_paypal_payment(current_user: dict = Depends(get_current_user)):
     if payment.create():
         # Store payment record
         payment_record = {
-            "userId": current_user["id"],
+            "userId": current_user.id,
             "subscriptionId": subscription.id,
             "paypalOrderId": payment.id,
             "amount": 10.0,
