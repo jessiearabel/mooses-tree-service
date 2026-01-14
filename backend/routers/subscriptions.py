@@ -192,7 +192,7 @@ async def create_paypal_payment(current_user = Depends(get_current_user)):
 async def execute_paypal_payment(
     payment_id: str,
     payer_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user = Depends(get_current_user)
 ):
     """Execute PayPal payment after approval"""
     db = await get_database()
@@ -218,7 +218,7 @@ async def execute_paypal_payment(
         next_month = now + timedelta(days=30)
         
         await db[SUBSCRIPTIONS_COLLECTION].update_one(
-            {"userId": current_user["id"]},
+            {"userId": current_user.id},
             {
                 "$set": {
                     "status": SubscriptionStatus.active,
@@ -229,7 +229,7 @@ async def execute_paypal_payment(
             }
         )
         
-        logger.info(f"Payment completed for user: {current_user['username']}")
+        logger.info(f"Payment completed for user: {current_user.username}")
         return MessageResponse(message="Payment completed successfully")
     else:
         logger.error(f"PayPal payment execution failed: {payment.error}")
