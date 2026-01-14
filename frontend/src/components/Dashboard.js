@@ -272,73 +272,81 @@ const Dashboard = ({ onNavigate }) => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Topic Performance */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" />
-              <span>{t.topicPerformance}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {examTopics.slice(0, 5).map((topic) => {
-              const score = progress?.topicScores?.[topic.id.toString()] || 0;
-              return (
-                <div key={topic.id} className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">
-                      {topic.name[language]}
-                    </div>
-                    <Progress value={score} className="mt-1 h-2" />
-                  </div>
-                  <Badge className={`ml-4 ${getScoreBadgeColor(score)}`}>
-                    {score}%
-                  </Badge>
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Subscription Status */}
+        <div className="lg:col-span-1">
+          <SubscriptionStatus />
+        </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Clock className="w-5 h-5 text-emerald-600" />
-              <span>{t.recentActivity}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {examHistory.slice(0, 5).map((result) => (
-                <div key={result.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {result.examType === 'practice' ? t.practiceExam : 
-                       result.topicId ? `${t.topicExam}: ${getTopicName(result.topicId)}` : t.fullExam}
+        {/* Topic Performance and Recent Activity */}
+        <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Topic Performance */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="w-5 h-5 text-emerald-600" />
+                <span>{t.topicPerformance}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {examTopics.slice(0, 5).map((topic) => {
+                const score = progress?.topicScores?.[topic.id.toString()] || 0;
+                return (
+                  <div key={topic.id} className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-900">
+                        {topic.name[language]}
+                      </div>
+                      <Progress value={score} className="mt-1 h-2" />
                     </div>
-                    <div className="text-sm text-gray-600">
-                      {result.correctAnswers}/{result.totalQuestions} {t.questions} • {formatTime(result.timeSpent)}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(result.completedAt).toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US')}
-                    </div>
+                    <Badge className={`ml-4 ${getScoreBadgeColor(score)}`}>
+                      {score}%
+                    </Badge>
                   </div>
-                  <Badge className={getScoreBadgeColor(result.score)}>
-                    {result.score}%
-                  </Badge>
-                </div>
-              ))}
-              {examHistory.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p>{language === 'es' ? 'No hay actividad reciente' : 'No recent activity'}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Clock className="w-5 h-5 text-emerald-600" />
+                <span>{t.recentActivity}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {examHistory.slice(0, 5).map((result) => (
+                  <div key={result.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {result.examType === 'practice' ? t.practiceExam : 
+                         result.topicId ? `${t.topicExam}: ${getTopicName(result.topicId)}` : t.fullExam}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {result.correctAnswers}/{result.totalQuestions} {t.questions} • {formatTime(result.timeSpent)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(result.completedAt).toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US')}
+                      </div>
+                    </div>
+                    <Badge className={getScoreBadgeColor(result.score)}>
+                      {result.score}%
+                    </Badge>
+                  </div>
+                ))}
+                {examHistory.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p>{language === 'es' ? 'No hay actividad reciente' : 'No recent activity'}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
