@@ -11,6 +11,7 @@ import {
   MessageSquarePlus,
   Settings,
   LogOut,
+  Upload,
   Loader2,
   Activity
 } from 'lucide-react';
