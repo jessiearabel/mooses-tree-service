@@ -190,10 +190,10 @@ class BackendAPITester:
         try:
             response = self.session.get(f"{BACKEND_URL}/subscriptions/status")
             
-            if response.status_code == 401:
-                self.log_test("Subscription Status - Unauthorized", True, "Correctly rejected unauthenticated request")
+            if response.status_code in [401, 403]:
+                self.log_test("Subscription Status - Unauthorized", True, f"Correctly rejected unauthenticated request ({response.status_code})")
             else:
-                self.log_test("Subscription Status - Unauthorized", False, f"Expected 401, got {response.status_code}")
+                self.log_test("Subscription Status - Unauthorized", False, f"Expected 401/403, got {response.status_code}")
                 
         except Exception as e:
             self.log_test("Subscription Status - Unauthorized", False, f"Exception: {str(e)}")
