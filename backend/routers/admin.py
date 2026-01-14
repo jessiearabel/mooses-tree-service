@@ -36,6 +36,14 @@ async def verify_admin_password(password: str) -> bool:
     """Verify admin password"""
     return password == ADMIN_PASSWORD
 
+async def get_admin_access(admin_password: str):
+    """Verify admin access and raise exception if invalid"""
+    if not await verify_admin_password(admin_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid admin password"
+        )
+
 # Admin Authentication Endpoints
 @router.post("/login", response_model=AdminResponse)
 async def admin_login(admin_data: AdminLogin):
