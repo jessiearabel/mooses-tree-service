@@ -50,6 +50,8 @@ const AdminDashboard = ({ adminPassword, onLogout }) => {
         return <AdminUsers adminPassword={adminPassword} onBack={() => setCurrentView('dashboard')} />;
       case 'questions':
         return <AdminQuestions adminPassword={adminPassword} onBack={() => setCurrentView('dashboard')} />;
+      case 'bulk-import':
+        return <BulkImportQuestions adminPassword={adminPassword} onBack={() => setCurrentView('dashboard')} />;
       default:
         return renderDashboard();
     }
