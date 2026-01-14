@@ -163,20 +163,53 @@ backend:
         agent: "testing"
         comment: "TESTED: All question management APIs working correctly. GET /api/admin/questions retrieves all questions (found 11 total), topic filtering works (found 3 questions for topic 1), POST /api/admin/questions creates bilingual questions successfully, DELETE /api/admin/questions/{id} handles non-existent questions with 404. Bilingual content (Spanish/English) properly supported."
 
-  - task: "Admin Statistics API"
+  - task: "Subscription System Backend"
     implemented: true
-    working: true
-    file: "/app/backend/routers/admin.py"
+    working: "NA"
+    file: "/app/backend/routers/subscriptions.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: true
+      - working: "NA"
         agent: "main"
-        comment: "Statistics endpoint implemented to provide user count, question count, and questions by topic"
-      - working: true
-        agent: "testing"
-        comment: "TESTED: Admin statistics API working correctly. GET /api/admin/stats returns proper statistics: 4 total users, 11 total questions, questions distributed across 5 topics. All data properly aggregated and formatted."
+        comment: "Complete subscription system with PayPal integration, trial management, and payment processing implemented"
+
+  - task: "PayPal Integration"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/routers/subscriptions.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "PayPal REST SDK integration for payment processing, order creation and execution"
+
+  - task: "Subscription Models"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Subscription and Payment models added with status tracking and trial management"
+
+  - task: "Database Collections"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/database.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added SUBSCRIPTIONS_COLLECTION and PAYMENTS_COLLECTION for subscription data storage"
 
 frontend:
   - task: "Admin Login Component"
