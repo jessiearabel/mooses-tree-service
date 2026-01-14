@@ -73,6 +73,15 @@ const AppContent = () => {
     );
   }
 
+  // Payment Routes Logic
+  if (isPaymentSuccessRoute) {
+    return <PaymentSuccess />;
+  }
+
+  if (isPaymentCancelRoute) {
+    return <PaymentCancel />;
+  }
+
   // Admin Portal Logic
   if (isAdminRoute) {
     if (!adminAccess) {
