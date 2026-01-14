@@ -601,10 +601,10 @@ class BackendAPITester:
             
             if response.status_code == 200:
                 data = response.json()
-                expected_keys = ["totalUsers", "totalQuestions", "questionsByTopic"]
+                expected_keys = ["users", "questions", "questions_by_topic"]
                 if all(key in data for key in expected_keys):
                     self.log_test("Get Stats - Valid Password", True, 
-                                f"Users: {data['totalUsers']}, Questions: {data['totalQuestions']}, Topics: {len(data['questionsByTopic'])}")
+                                f"Users: {data['users']}, Questions: {data['questions']}, Topics: {len(data['questions_by_topic'])}")
                 else:
                     self.log_test("Get Stats - Valid Password", False, f"Missing keys. Got: {list(data.keys())}")
             else:
