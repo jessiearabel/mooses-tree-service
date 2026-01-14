@@ -113,12 +113,9 @@ user_problem_statement: |
   2. Logo Customization: Replace default "Tree Pine" logo with provided "moose" image
   3. Student Management: A link/feature to add new students, ensuring it's not on the main student profile
   4. Super-Administrator Portal: A password-protected portal for super-administrators to add/remove questions and add/delete users
+  5. NEW REQUIREMENT: Subscription system with $10 USD monthly payments, 5-day free trial, and PayPal integration
   
-  Current task: Complete the super-administrator portal implementation with:
-  - Link in footer to access admin portal
-  - AdminUsers component for user management (add/delete users)
-  - AdminQuestions component for question management (add/edit/delete questions)
-  - Full integration with existing backend APIs
+  Current task: Implement complete subscription system with PayPal integration for monthly payments and free trials.
 
 backend:
   - task: "Admin Authentication API"
