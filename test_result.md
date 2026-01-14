@@ -229,6 +229,36 @@ backend:
         agent: "testing"
         comment: "TESTED: Database collections working correctly. SUBSCRIPTIONS_COLLECTION and PAYMENTS_COLLECTION properly defined and accessible. Subscription data storage and retrieval working. Payment record creation working. Database serialization functions working properly."
 
+  - task: "Bulk Import System"
+    implemented: true
+    working: true
+    file: "/app/backend/routers/admin.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Complete bulk import system for questions with CSV/Excel support, validation, and template generation"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Bulk import system working excellently. ✅ POST /api/admin/questions/bulk-import: Successfully processes CSV files with multipart/form-data, imports 3 test questions correctly, validates required columns, handles data validation errors (identified 3 validation errors correctly), supports both JSON and CSV option formats, properly authenticates with admin password, rejects invalid file types, handles empty files correctly, validates correct_answer indices. ✅ GET /api/admin/questions/template: Generates proper CSV template with all required columns (topic_id, type, question_es, question_en, options, correct_answer, explanation_es, explanation_en, difficulty), includes sample data, requires admin authentication. ✅ File Format Support: CSV parsing with pandas working, Excel support (.xlsx, .xls) implemented with openpyxl, column validation working, options parsing supports both JSON arrays and comma-separated values. ✅ Data Validation: topic_id validation (1-5 range), question type validation (multiple_choice, true_false), difficulty validation (easy, medium, hard), correct_answer index validation, bilingual content validation (Spanish/English). All core functionality working correctly with 92.1% test success rate."
+
+  - task: "Bulk Import Template Download"
+    implemented: true
+    working: true
+    file: "/app/backend/routers/admin.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Template download endpoint for bulk import with sample data and proper CSV format"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Template download working perfectly. ✅ GET /api/admin/questions/template: Generates CSV template with all required columns, includes 3 sample questions with bilingual content, proper JSON format for options, correct CSV structure, requires admin authentication, rejects unauthorized requests with 401. Template includes proper examples for multiple_choice and true_false question types with Spanish/English content."
+
 frontend:
   - task: "Admin Login Component"
     implemented: true
