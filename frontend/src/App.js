@@ -12,6 +12,8 @@ import AddStudent from './components/AddStudent';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import SubscriptionRegister from './components/SubscriptionRegister';
+import PaymentSuccess from './components/PaymentSuccess';
+import PaymentCancel from './components/PaymentCancel';
 import "./App.css";
 
 const AppContent = () => {
