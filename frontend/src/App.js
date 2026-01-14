@@ -27,6 +27,8 @@ const AppContent = () => {
   // Check for admin route
   const isAdminRoute = location.pathname === '/admin';
   const isRegisterRoute = location.pathname === '/register';
+  const isPaymentSuccessRoute = location.pathname === '/payment/success';
+  const isPaymentCancelRoute = location.pathname === '/payment/cancel';
 
   useEffect(() => {
     if (isAdminRoute && !adminAccess) {
