@@ -1010,6 +1010,19 @@ class BackendAPITester:
         self.test_get_stats_valid()
         self.test_get_stats_invalid()
         
+        # Bulk Import Tests
+        print("\n📁 BULK IMPORT SYSTEM TESTS")
+        self.test_bulk_import_template_download_valid()
+        self.test_bulk_import_template_download_invalid()
+        self.test_bulk_import_csv_valid()
+        self.test_bulk_import_csv_invalid_columns()
+        self.test_bulk_import_invalid_file_type()
+        self.test_bulk_import_data_validation()
+        self.test_bulk_import_options_parsing()
+        self.test_bulk_import_unauthorized()
+        self.test_bulk_import_empty_file()
+        self.test_bulk_import_correct_answer_validation()
+        
         # Summary
         self.print_summary()
         
