@@ -253,32 +253,209 @@ async def delete_question(question_id: str, admin_password: str):
 
 @router.get("/stats")
 async def get_admin_stats(admin_password: str):
-    """Get platform statistics (admin only)"""
-    if not await verify_admin_password(admin_password):
+    """Get admin statistics"""
+    await get_admin_access(admin_password)
+    
+    try:
+        db = await get_database()
+        
+        # Count users
+        user_count = await db[USERS_COLLECTION].count_documents({})
+        
+        # Count questions
+        question_count = await db[QUESTIONS_COLLECTION].count_documents({})
+        
+        # Count questions by topic
+        questions_by_topic = {}
+        for topic_id in range(1, 6):
+            count = await db[QUESTIONS_COLLECTION].count_documents({"topicId": topic_id})
+            questions_by_topic[f"topic_{topic_id}"] = count
+        
+        return {
+            "users": user_count,
+            "questions": question_count,
+            "questions_by_topic": questions_by_topic
+        }
+    
+    except Exception as e:
+        logger.error(f"Error getting admin stats: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving statistics")
+
+@router.post("/questions/bulk-import")
+async def bulk_import_questions(
+    admin_password: str,
+    file: UploadFile = File(...)
+):
+    """Import questions in bulk from Excel/CSV file"""
+    await get_admin_access(admin_password)
+    
+    # Validate file type
+    allowed_extensions = ['.xlsx', '.xls', '.csv']
+    file_extension = None
+    for ext in allowed_extensions:
+        if file.filename.lower().endswith(ext):
+            file_extension = ext
+            break
+    
+    if not file_extension:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid admin password"
+            status_code=400,
+            detail="Invalid file type. Please upload Excel (.xlsx, .xls) or CSV (.csv) file"
         )
     
-    db = await get_database()
+    try:
+        # Read file content
+        contents = await file.read()
+        
+        # Parse file based on extension
+        if file_extension == '.csv':
+            df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+        else:  # Excel files
+            df = pd.read_excel(io.BytesIO(contents))
+        
+        # Validate required columns
+        required_columns = [
+            'topic_id', 'type', 'question_es', 'question_en', 
+            'options', 'correct_answer', 'explanation_es', 'explanation_en', 'difficulty'
+        ]
+        
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        if missing_columns:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Missing required columns: {missing_columns}"
+            )
+        
+        # Process questions
+        db = await get_database()
+        imported_questions = []
+        errors = []
+        
+        for index, row in df.iterrows():
+            try:
+                # Parse options (expect JSON string or comma-separated)
+                options_str = str(row['options']).strip()
+                if options_str.startswith('[') and options_str.endswith(']'):
+                    # JSON format
+                    options = json.loads(options_str)
+                else:
+                    # Comma-separated format
+                    options = [opt.strip() for opt in options_str.split(',')]
+                
+                # Create question document
+                question_doc = {
+                    "id": str(uuid.uuid4()),
+                    "topicId": int(row['topic_id']),
+                    "type": str(row['type']).lower().replace(' ', '_'),
+                    "question": {
+                        "es": str(row['question_es']).strip(),
+                        "en": str(row['question_en']).strip()
+                    },
+                    "options": options,
+                    "correctAnswer": int(row['correct_answer']),
+                    "explanation": {
+                        "es": str(row['explanation_es']).strip(),
+                        "en": str(row['explanation_en']).strip()
+                    },
+                    "difficulty": str(row['difficulty']).lower(),
+                    "createdAt": datetime.utcnow(),
+                    "updatedAt": datetime.utcnow()
+                }
+                
+                # Validate question
+                if not (1 <= question_doc["topicId"] <= 5):
+                    errors.append(f"Row {index + 2}: Topic ID must be between 1-5")
+                    continue
+                
+                if question_doc["type"] not in ["multiple_choice", "true_false"]:
+                    errors.append(f"Row {index + 2}: Type must be 'multiple_choice' or 'true_false'")
+                    continue
+                
+                if question_doc["difficulty"] not in ["easy", "medium", "hard"]:
+                    errors.append(f"Row {index + 2}: Difficulty must be 'easy', 'medium', or 'hard'")
+                    continue
+                
+                if question_doc["type"] == "multiple_choice" and len(options) < 2:
+                    errors.append(f"Row {index + 2}: Multiple choice questions need at least 2 options")
+                    continue
+                
+                if not (0 <= question_doc["correctAnswer"] < len(options)):
+                    errors.append(f"Row {index + 2}: Correct answer index out of range")
+                    continue
+                
+                # Insert into database
+                result = await db[QUESTIONS_COLLECTION].insert_one(question_doc)
+                
+                if result.inserted_id:
+                    imported_questions.append({
+                        "row": index + 2,
+                        "id": question_doc["id"],
+                        "topic": question_doc["topicId"],
+                        "question_es": question_doc["question"]["es"][:50] + "..."
+                    })
+                
+            except Exception as e:
+                errors.append(f"Row {index + 2}: {str(e)}")
+        
+        return {
+            "message": f"Bulk import completed",
+            "imported_count": len(imported_questions),
+            "error_count": len(errors),
+            "imported_questions": imported_questions,
+            "errors": errors[:10]  # Limit errors to first 10
+        }
     
-    # Get statistics
-    total_users = await db[USERS_COLLECTION].count_documents({})
-    total_questions = await db[QUESTIONS_COLLECTION].count_documents({})
+    except pd.errors.EmptyDataError:
+        raise HTTPException(status_code=400, detail="File is empty or invalid")
+    except Exception as e:
+        logger.error(f"Bulk import error: {e}")
+        raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
+
+@router.get("/questions/template")
+async def download_import_template(admin_password: str):
+    """Download template file for bulk import"""
+    await get_admin_access(admin_password)
     
-    # Questions by topic
-    topics_pipeline = [
-        {"$group": {"_id": "$topicId", "count": {"$sum": 1}}},
-        {"$sort": {"_id": 1}}
-    ]
-    topics_cursor = db[QUESTIONS_COLLECTION].aggregate(topics_pipeline)
-    topics_stats = await topics_cursor.to_list(length=20)
-    
-    stats = {
-        "totalUsers": total_users,
-        "totalQuestions": total_questions,
-        "questionsByTopic": {str(topic["_id"]): topic["count"] for topic in topics_stats}
+    # Create sample data
+    template_data = {
+        'topic_id': [1, 1, 2],
+        'type': ['multiple_choice', 'true_false', 'multiple_choice'],
+        'question_es': [
+            '¿Cuál es la función principal de la corteza en los árboles?',
+            'La poda debe realizarse siempre en invierno',
+            '¿Qué herramienta es más segura para cortar ramas altas?'
+        ],
+        'question_en': [
+            'What is the main function of bark in trees?',
+            'Pruning should always be done in winter',
+            'Which tool is safest for cutting high branches?'
+        ],
+        'options': [
+            '["Protección", "Fotosíntesis", "Transporte de agua", "Almacenamiento"]',
+            '["Verdadero", "Falso"]',
+            '["Motosierra", "Sierra de pértiga", "Hacha", "Tijeras de podar"]'
+        ],
+        'correct_answer': [0, 1, 1],
+        'explanation_es': [
+            'La corteza protege el árbol de daños externos y patógenos',
+            'La poda puede realizarse en diferentes épocas según el tipo de árbol',
+            'La sierra de pértiga permite mantener distancia de seguridad'
+        ],
+        'explanation_en': [
+            'Bark protects the tree from external damage and pathogens',
+            'Pruning can be done at different times depending on tree type',
+            'Pole saw allows maintaining safe distance'
+        ],
+        'difficulty': ['medium', 'easy', 'medium']
     }
     
-    logger.info("Admin retrieved platform stats")
-    return stats
+    # Create DataFrame and convert to CSV
+    df = pd.DataFrame(template_data)
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
+    csv_content = csv_buffer.getvalue()
+    
+    return JSONResponse(
+        content={"csv_content": csv_content},
+        headers={"Content-Disposition": "attachment; filename=questions_template.csv"}
+    )
