@@ -210,15 +210,18 @@ backend:
 
   - task: "Database Collections"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/database.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Added SUBSCRIPTIONS_COLLECTION and PAYMENTS_COLLECTION for subscription data storage"
+      - working: true
+        agent: "testing"
+        comment: "TESTED: Database collections working correctly. SUBSCRIPTIONS_COLLECTION and PAYMENTS_COLLECTION properly defined and accessible. Subscription data storage and retrieval working. Payment record creation working. Database serialization functions working properly."
 
 frontend:
   - task: "Admin Login Component"
