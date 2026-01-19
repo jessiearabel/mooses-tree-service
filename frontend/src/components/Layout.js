@@ -89,13 +89,26 @@ const Layout = ({ children }) => {
 
       <footer className="bg-white/60 backdrop-blur-sm border-t border-emerald-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center text-gray-600">
-            <p className="text-sm">
+          <div className="flex flex-col items-center text-gray-600 space-y-2">
+            <p className="text-sm text-center">
               {language === 'es' 
                 ? "© 2024 Plataforma de Estudio Moose - Certificación de Arborista"
                 : "© 2024 Moose Study Platform - Arborist Certification"
               }
             </p>
+            <div className="flex items-center space-x-2 text-xs text-gray-500">
+              <span>
+                {language === 'es' ? 'Desarrollado por' : 'Developed by'}
+              </span>
+              <a 
+                href="https://scivis-innovations.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Scivis Innovations
+              </a>
+            </div>
           </div>
         </div>
       </footer>
