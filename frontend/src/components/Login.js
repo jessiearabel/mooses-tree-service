@@ -188,9 +188,17 @@ const Login = () => {
               <Button
                 variant="outline"
                 onClick={() => window.location.href = '/register'}
-                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white border-0"
+                className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white border-0 mb-3"
               >
                 {language === 'es' ? 'Registrarse - Prueba 5 días gratis' : 'Sign Up - 5 Days Free Trial'}
+              </Button>
+              
+              <Button
+                variant="ghost"
+                onClick={() => window.location.href = '/admin'}
+                className="w-full text-xs text-gray-500 hover:text-gray-700"
+              >
+                {language === 'es' ? 'Acceso Administrador' : 'Administrator Access'}
               </Button>
             </div>
           </CardFooter>
