@@ -148,6 +148,18 @@ const AdminLogin = ({ onAdminAccess, onBack }) => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver a la Plataforma de Estudio
             </Button>
+            
+            <div className="flex items-center justify-center space-x-2 text-xs text-gray-500 mt-4">
+              <span>Desarrollado por</span>
+              <a 
+                href="https://scivis-innovations.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Scivis Innovations
+              </a>
+            </div>
           </div>
         </Card>
       </div>
