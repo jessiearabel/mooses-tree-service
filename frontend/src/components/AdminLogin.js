@@ -52,10 +52,10 @@ const AdminLogin = ({ onAdminAccess, onBack }) => {
             <Shield className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Portal de Administración
+            Moose SciVis Learning Hub
           </h1>
           <p className="text-gray-600">
-            Plataforma Moose - Acceso Restringido
+            Portal de Super Administrador
           </p>
         </div>
 
