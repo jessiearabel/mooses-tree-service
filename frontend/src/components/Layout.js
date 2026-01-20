@@ -18,7 +18,7 @@ const Layout = ({ children }) => {
       language: "English"
     },
     en: {
-      title: "Moose Study Platform",
+      title: "Moose SciVis Learning Hub",
       subtitle: "Arborist Certification Exam",
       welcome: "Welcome",
       logout: "Logout", 
