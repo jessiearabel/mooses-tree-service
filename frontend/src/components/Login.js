@@ -17,26 +17,22 @@ const Login = () => {
 
   const texts = {
     es: {
-      title: "Iniciar Sesión",
-      subtitle: "Accede a tu cuenta de estudio",
+      title: "Moose SciVis Learning Hub",
+      subtitle: "Examen de Certificación de Arborista",
       username: "Usuario",
       password: "Contraseña",
       loginButton: "Iniciar Sesión",
-      demoCredentials: "Credenciales de Demostración:",
-      demoUser: "Usuario: estudiante1 | Contraseña: password123",
-      demoUser2: "Usuario: student2 | Contraseña: password123",
-      languageSwitch: "Switch to English"
+      loading: "Iniciando sesión...",
+      languageSwitch: "English"
     },
     en: {
-      title: "Login",
-      subtitle: "Access your study account",
-      username: "Username",
-      password: "Password", 
-      loginButton: "Login",
-      demoCredentials: "Demo Credentials:",
-      demoUser: "User: estudiante1 | Password: password123",
-      demoUser2: "User: student2 | Password: password123",
-      languageSwitch: "Cambiar a Español"
+      title: "Moose SciVis Learning Hub",
+      subtitle: "Arborist Certification Exam",
+      username: "Username", 
+      password: "Password",
+      loginButton: "Sign In",
+      loading: "Signing in...",
+      languageSwitch: "Español"
     }
   };
 
