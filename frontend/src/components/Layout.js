@@ -11,7 +11,7 @@ const Layout = ({ children }) => {
 
   const texts = {
     es: {
-      title: "Plataforma de Estudio - Moose",
+      title: "Moose SciVis Learning Hub",
       subtitle: "Examen de Certificación de Arborista",
       welcome: "Bienvenido",
       logout: "Cerrar Sesión",
