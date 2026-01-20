@@ -92,8 +92,8 @@ const Layout = ({ children }) => {
           <div className="flex flex-col items-center text-gray-600 space-y-2">
             <p className="text-sm text-center">
               {language === 'es' 
-                ? "© 2024 Plataforma de Estudio Moose - Certificación de Arborista"
-                : "© 2024 Moose Study Platform - Arborist Certification"
+                ? "© 2024 Moose SciVis Learning Hub - Certificación de Arborista"
+                : "© 2024 Moose SciVis Learning Hub - Arborist Certification"
               }
             </p>
             <div className="flex items-center space-x-2 text-xs text-gray-500">
