@@ -150,26 +150,6 @@ const Login = () => {
                 )}
               </Button>
             </form>
-
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-              <p className="text-sm font-medium text-gray-700 mb-2">{t.demoCredentials}</p>
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => fillDemoCredentials('estudiante1')}
-                  className="block text-xs text-emerald-600 hover:text-emerald-700 hover:underline"
-                >
-                  {t.demoUser}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemoCredentials('student2')}
-                  className="block text-xs text-emerald-600 hover:text-emerald-700 hover:underline"
-                >
-                  {t.demoUser2}
-                </button>
-              </div>
-            </div>
           </CardContent>
           
           <CardFooter className="pt-4 space-y-4">
