@@ -39,7 +39,7 @@ const SubscriptionRegister = ({ onBack }) => {
 
   const texts = {
     es: {
-      title: "Registrarse en Moose",
+      title: "Registrarse en Moose SciVis Learning Hub",
       subtitle: "Únete a miles de estudiantes preparándose para el examen de arborista",
       step1Title: "Crear tu cuenta",
       step2Title: "¡Prueba gratuita de 5 días!",
