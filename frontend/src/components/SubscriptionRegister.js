@@ -74,7 +74,7 @@ const SubscriptionRegister = ({ onBack }) => {
       payWithPayPal: "Pagar con PayPal"
     },
     en: {
-      title: "Join Moose",
+      title: "Join Moose SciVis Learning Hub",
       subtitle: "Join thousands of students preparing for the arborist certification exam",
       step1Title: "Create your account",
       step2Title: "5-day free trial!",
