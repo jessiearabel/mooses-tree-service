@@ -89,3 +89,18 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+# Environment files
+.env
+backend/.env
+frontend/.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+
+# Dependencies
+node_modules/
+__pycache__/
+
+# Logs
+*.log
