@@ -280,10 +280,10 @@ async def update_user_progress(user_id: str, exam_type: str, topic_id: int, scor
     
     progress["completedQuestions"] += questions_added
     
-    # Recalculate average score based on all exam results
+    # Recalculate average score based on recent exam results (last 100 exams)
     all_results = await db[EXAM_RESULTS_COLLECTION].find(
         {"userId": ObjectId(user_id)}
-    ).to_list(None)
+    ).sort("completedAt", -1).limit(100).to_list(length=100)
     
     if all_results:
         total_score = sum(result["score"] for result in all_results)
