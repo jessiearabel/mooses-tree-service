@@ -77,28 +77,9 @@ agenthub/agents/youtube/db
 .cache/
 
 # Mobile development
-android-sdk/ -e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
-# Environment files
-.env
-backend/.env
-frontend/.env
-*.env.local
-*.env.development
-*.env.test
-*.env.production
+android-sdk/
 
-# Dependencies
+# Dependencies  
 node_modules/
 __pycache__/
 
