@@ -85,3 +85,7 @@ __pycache__/
 
 # Logs
 *.log
+-e 
+# Environment files
+*.env
+*.env.*
