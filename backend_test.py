@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://exam-tree-prep.preview.emergentagent.com/api"
+BACKEND_URL = "https://moose-learning-hub.preview.emergentagent.com/api"
 ADMIN_PASSWORD = "moose_admin_2024"
 INVALID_PASSWORD = "wrong_password"
 

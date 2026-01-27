@@ -7,7 +7,7 @@ import requests
 import json
 from datetime import datetime
 
-BACKEND_URL = "https://exam-tree-prep.preview.emergentagent.com/api"
+BACKEND_URL = "https://moose-learning-hub.preview.emergentagent.com/api"
 
 TEST_USER_DATA = {
     "username": f"sub_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
