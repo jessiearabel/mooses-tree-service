@@ -346,16 +346,16 @@ async def get_admin_stats(admin_password: str):
         # Count questions
         question_count = await db[QUESTIONS_COLLECTION].count_documents({})
         
-        # Count questions by topic
+        # Count questions by topic - use numeric keys for frontend compatibility
         questions_by_topic = {}
         for topic_id in range(1, 6):
             count = await db[QUESTIONS_COLLECTION].count_documents({"topicId": topic_id})
-            questions_by_topic[f"topic_{topic_id}"] = count
+            questions_by_topic[topic_id] = count
         
         return {
-            "users": user_count,
-            "questions": question_count,
-            "questions_by_topic": questions_by_topic
+            "totalUsers": user_count,
+            "totalQuestions": question_count,
+            "questionsByTopic": questions_by_topic
         }
     
     except Exception as e:
