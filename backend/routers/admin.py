@@ -163,9 +163,9 @@ async def delete_user(user_id: str, admin_password: str):
     return MessageResponse(message="User deleted successfully")
 
 # Question Management Endpoints
-@router.get("/questions", response_model=QuestionsResponse)
+@router.get("/questions")
 async def get_all_questions(admin_password: str, topic_id: int = None):
-    """Get all questions (admin only)"""
+    """Get all questions (admin only) - returns simplified format for frontend"""
     if not await verify_admin_password(admin_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -184,10 +184,46 @@ async def get_all_questions(admin_password: str, topic_id: int = None):
     
     total = await db[QUESTIONS_COLLECTION].count_documents(query)
     
-    questions_response = [QuestionResponse(**serialize_doc(q)) for q in questions]
+    # Transform questions for frontend compatibility
+    questions_response = []
+    for q in questions:
+        # Handle options - convert dict to list if necessary
+        options = q.get("options", [])
+        if isinstance(options, dict):
+            # Use Spanish options as default, or English if Spanish not available
+            options = options.get("es", options.get("en", []))
+        
+        # Ensure question and explanation are dicts
+        question_text = q.get("question", {})
+        if not isinstance(question_text, dict):
+            question_text = {"es": str(question_text), "en": str(question_text)}
+        
+        explanation = q.get("explanation", {})
+        if not isinstance(explanation, dict):
+            explanation = {"es": str(explanation), "en": str(explanation)}
+        
+        # Normalize type
+        q_type = q.get("type", "multiple_choice")
+        if q_type == "multiple-choice":
+            q_type = "multiple_choice"
+        elif q_type == "true-false":
+            q_type = "true_false"
+        
+        question_data = {
+            "id": str(q.get("_id", "")),
+            "topicId": q.get("topicId", 1),
+            "type": q_type,
+            "question": question_text,
+            "options": options,
+            "correctAnswer": q.get("correctAnswer", 0),
+            "explanation": explanation,
+            "difficulty": q.get("difficulty", "medium"),
+            "createdAt": q.get("createdAt", datetime.utcnow())
+        }
+        questions_response.append(question_data)
     
     logger.info(f"Retrieved {len(questions_response)} questions for admin")
-    return QuestionsResponse(questions=questions_response, total=total)
+    return {"questions": questions_response, "total": total}
 
 @router.post("/questions", response_model=MessageResponse)
 async def create_question(question_data: dict, admin_password: str):
