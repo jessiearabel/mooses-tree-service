@@ -190,35 +190,80 @@ async def get_all_questions(admin_password: str, topic_id: int = None):
     return QuestionsResponse(questions=questions_response, total=total)
 
 @router.post("/questions", response_model=MessageResponse)
-async def create_question(question_data: QuestionCreate, admin_password: str):
-    """Create new question (admin only)"""
+async def create_question(question_data: dict, admin_password: str):
+    """Create new question (admin only) - accepts flexible format from frontend"""
     if not await verify_admin_password(admin_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid admin password"
         )
     
-    db = await get_database()
+    try:
+        db = await get_database()
+        
+        # Normalize type field (convert "multiple-choice" to "multiple_choice")
+        question_type = question_data.get("type", "multiple_choice")
+        if question_type == "multiple-choice":
+            question_type = "multiple_choice"
+        elif question_type == "true-false":
+            question_type = "true_false"
+        
+        # Handle question text - can be dict or MultilingualText object
+        question_text = question_data.get("question", {})
+        if isinstance(question_text, dict):
+            question_es = question_text.get("es", "")
+            question_en = question_text.get("en", "")
+        else:
+            question_es = str(question_text)
+            question_en = str(question_text)
+        
+        # Handle explanation - can be dict or MultilingualText object
+        explanation = question_data.get("explanation", {})
+        if isinstance(explanation, dict):
+            explanation_es = explanation.get("es", "")
+            explanation_en = explanation.get("en", "")
+        else:
+            explanation_es = str(explanation)
+            explanation_en = str(explanation)
+        
+        # Handle options - can be list or dict
+        options = question_data.get("options", [])
+        if isinstance(options, list):
+            # Convert list to dict format expected by the system
+            options_dict = {"es": options, "en": options}
+        elif isinstance(options, dict):
+            options_dict = options
+        else:
+            options_dict = {"es": [], "en": []}
+        
+        # Create question document
+        question_dict = {
+            "topicId": int(question_data.get("topicId", 1)),
+            "type": question_type,
+            "question": {"es": question_es, "en": question_en},
+            "correctAnswer": int(question_data.get("correctAnswer", 0)),
+            "explanation": {"es": explanation_es, "en": explanation_en},
+            "difficulty": question_data.get("difficulty", "medium"),
+            "createdAt": datetime.utcnow()
+        }
+        
+        # Add options for multiple choice questions
+        if question_type == "multiple_choice" and options_dict:
+            question_dict["options"] = options_dict
+        elif question_type == "true_false":
+            question_dict["options"] = {"es": ["Verdadero", "Falso"], "en": ["True", "False"]}
+        
+        result = await db[QUESTIONS_COLLECTION].insert_one(question_dict)
+        logger.info(f"Admin created new question for topic {question_dict['topicId']}")
+        
+        return MessageResponse(message="Question created successfully")
     
-    # Create question document
-    question_dict = {
-        "topicId": question_data.topicId,
-        "type": question_data.type,
-        "question": question_data.question.dict(),
-        "correctAnswer": question_data.correctAnswer,
-        "explanation": question_data.explanation.dict(),
-        "difficulty": question_data.difficulty,
-        "createdAt": datetime.utcnow()
-    }
-    
-    # Add options for multiple choice questions
-    if question_data.options:
-        question_dict["options"] = question_data.options
-    
-    result = await db[QUESTIONS_COLLECTION].insert_one(question_dict)
-    logger.info(f"Admin created new question for topic {question_data.topicId}")
-    
-    return MessageResponse(message="Question created successfully")
+    except Exception as e:
+        logger.error(f"Error creating question: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error creating question: {str(e)}"
+        )
 
 @router.delete("/questions/{question_id}", response_model=MessageResponse)
 async def delete_question(question_id: str, admin_password: str):
